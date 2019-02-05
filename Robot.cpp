@@ -6,7 +6,6 @@
 #include "frc/drive/MecanumDrive.h"
 #include "ctre/Phoenix.h"
 #include <iostream>
-#include "frc/PWM.h"
 
 
 /*************************************************************************************************/
@@ -54,21 +53,19 @@
 #define PAYLOAD_LIFT_DEVICENUMBER_LEADER 9
 #define PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER 10
 
-// End Effector -- CAN Device Number
-#define ENDEFFECTOR_LEFT_ROLLER_LEADER 11
-#define ENDEFFECTOR_RIGHT_ROLLER_FOLLOWER 12
-
 // Omni Drive -- Speed Gain
 #define OMNI_SPEED_GAIN 1.0
 
 // Payload Lift -- Speed Gain
 #define PAYLOAD_LIFT_SPEED_GAIN 0.2
 
+#define PAYLOAD_LOWEST_HATCH_LEVEL_MOTOR_POSITION 0
+#define PAYLOAD_MIDDLE_HATCH_LEVEL_MOTOR_POSITION 512
+#define PAYLOAD_HIGHEST_HATCH_LEVEL_MOTOR_POSITION 1024
+
 // Motor Safety -- Timeout value
 #define MOTOR_SAFETY_TIMEOUT 0.5
 
-// ALL PWM DEVICES
-#define ENDEFFECTOR_FLOWER_DEVICENUMBER 0
 
 /*************************************************************************************************/
 /*** Declarations ****/
@@ -95,11 +92,11 @@ WPI_TalonSRX Payload_Lift_Leader { PAYLOAD_LIFT_DEVICENUMBER_LEADER };
 VictorSPX Payload_Lift_Follower { PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER };
 
 // End Effector -- Cargo Motor Drivers
- VictorSPX EndEffector_Left_Roller_Leader { ENDEFFECTOR_LEFT_ROLLER_LEADER };
- VictorSPX EndEffector_Right_Roller_Follower { ENDEFFECTOR_RIGHT_ROLLER_FOLLOWER };
+// WPI_TalonSRX Cargo_Roller_Left;
+// WPI_TalonSRX Cargo_Roller_Right;
 
 // End Effector -- Hatch Motor Driver
-frc::PWM::PWM (int 0);	
+// WPI_TalonSRX Hatch_Catch;
 
 
 /*************************************************************************************************/
@@ -121,26 +118,17 @@ void Configure_Omni_Drive()
 
     Omni_RearRight_Leader.SetInverted(true);
     Omni_RearRight_Follower.SetInverted(true);
-
-    // Setting up Drive Train Followers
-    Omni_FrontLeft_Follower.Follow(Omni_FrontLeft_Leader); 
-    Omni_RearLeft_Follower.Follow(Omni_RearLeft_Leader); 
-    Omni_FrontRight_Follower.Follow(Omni_FrontRight_Leader); 
-    Omni_RearRight_Follower.Follow(Omni_RearRight_Leader);
-
 }
 
 void Configure_Payload_Lift()
 {
     Payload_Lift_Leader.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, 0);
-    Payload_Lift_Leader.SetSensorPhase(false);
+    Payload_Lift_Leader.SetSensorPhase(false); 
+	Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);
 
     // Set rotation direction, clockwise == false
     Payload_Lift_Leader.SetInverted(true);
     Payload_Lift_Follower.SetInverted(true);
-
-    // Setting up Payload Follower 
-    Payload_Lift_Follower.Follow(Payload_Lift_Leader);
 }
 
 void Configure_End_Effector()
@@ -152,16 +140,33 @@ void Stop_All_Motors()
 {
     // Set output speed, 0 == stop
     Omni_FrontLeft_Leader.Set(ControlMode::PercentOutput, 0);
+    Omni_FrontLeft_Follower.Set(ControlMode::PercentOutput, 0);
 
     Omni_RearLeft_Leader.Set(ControlMode::PercentOutput, 0);
+    Omni_RearLeft_Follower.Set(ControlMode::PercentOutput, 0);
 
     Omni_FrontRight_Leader.Set(ControlMode::PercentOutput, 0);
+    Omni_FrontRight_Follower.Set(ControlMode::PercentOutput, 0);
     
     Omni_RearRight_Leader.Set(ControlMode::PercentOutput, 0);
+    Omni_RearRight_Follower.Set(ControlMode::PercentOutput, 0);
 
     Payload_Lift_Leader.Set(ControlMode::PercentOutput, 0);
+    Payload_Lift_Follower.Set(ControlMode::PercentOutput, 0);
 }
 
+void Activate_Followers() {
+    if (ENABLE_DRIVETRAIN) { 
+        Omni_FrontLeft_Follower.Follow(Omni_FrontLeft_Leader); 
+        Omni_RearLeft_Follower.Follow(Omni_RearLeft_Leader); 
+        Omni_FrontRight_Follower.Follow(Omni_FrontRight_Leader); 
+        Omni_RearRight_Follower.Follow(Omni_RearRight_Leader);
+    }
+
+    if (ENABLE_PAYLOAD) { 
+        Payload_Lift_Follower.Follow(Payload_Lift_Leader);
+    }
+}
 
 void Enable_Motor_Safety(bool enable)
 {
@@ -183,7 +188,9 @@ void Robot::RobotInit()
     Configure_End_Effector();
 
     Stop_All_Motors();
+    Activate_Followers();
     Enable_Motor_Safety(false);
+
 }
 
 
@@ -213,21 +220,27 @@ void Robot::TeleopPeriodic()
     }
 
     if(ENABLE_PAYLOAD)
-    {
-        // Lift Payload Arm
-        if (Joystick_GamePad.GetRawAxis(AXIS_LEFT_TRIGGER)) 
-        {
-            Payload_Lift_Leader.Set(ControlMode::PercentOutput, -PAYLOAD_LIFT_SPEED_GAIN);
-        }
+    {  
 
-        // Lower Payload Arm
-        else if (Joystick_GamePad.GetRawAxis(AXIS_RIGHT_TRIGGER)) 
-        {
+        // Send Payload Arm to hatch levels
+        if (Joystick_GamePad.GetRawButton(BUTTON_GREEN)) {   
             Payload_Lift_Leader.Set(ControlMode::PercentOutput, PAYLOAD_LIFT_SPEED_GAIN);
-        }
-
-        else
-        {
+            //Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_LOWEST_HATCH_LEVEL_MOTOR_POSITION);
+        } 
+        else if (Joystick_GamePad.GetRawButton(BUTTON_BLUE)) 
+        { 
+            Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_MIDDLE_HATCH_LEVEL_MOTOR_POSITION); 
+        } 
+        else if (Joystick_GamePad.GetRawButton(BUTTON_YELLOW)) 
+        { 
+            Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_HIGHEST_HATCH_LEVEL_MOTOR_POSITION); 
+        } 
+        else if (Joystick_GamePad.GetRawButton(BUTTON_RED)) 
+        { 
+            Payload_Lift_Leader.Set(ControlMode::PercentOutput, -PAYLOAD_LIFT_SPEED_GAIN);
+        } 
+        else 
+        { 
             Payload_Lift_Leader.Set(ControlMode::PercentOutput, 0);
         }
 
