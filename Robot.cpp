@@ -3,6 +3,7 @@
 
 #include "Robot.h"
 #include "frc/WPILib.h"
+#include "frc/PWM.h"
 #include "frc/drive/MecanumDrive.h"
 #include "ctre/Phoenix.h"
 #include <iostream>
@@ -91,6 +92,8 @@ frc::MecanumDrive Robot_Drive { Omni_FrontLeft_Leader, Omni_RearLeft_Leader, Omn
 WPI_TalonSRX Payload_Lift_Leader { PAYLOAD_LIFT_DEVICENUMBER_LEADER };
 VictorSPX Payload_Lift_Follower { PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER };
 
+frc::PWM someServo(1);
+
 // End Effector -- Cargo Motor Drivers
 // WPI_TalonSRX Cargo_Roller_Left;
 // WPI_TalonSRX Cargo_Roller_Right;
@@ -123,12 +126,11 @@ void Configure_Omni_Drive()
 void Configure_Payload_Lift()
 {
     Payload_Lift_Leader.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, 0);
-    Payload_Lift_Leader.SetSensorPhase(false); 
-	Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);
+    Payload_Lift_Leader.SetSensorPhase(true); 
 
     // Set rotation direction, clockwise == false
-    Payload_Lift_Leader.SetInverted(true);
-    Payload_Lift_Follower.SetInverted(true);
+    Payload_Lift_Leader.SetInverted(false);
+    Payload_Lift_Follower.SetInverted(false);
 }
 
 void Configure_End_Effector()
@@ -199,7 +201,8 @@ void Robot::RobotInit()
 
 void Robot::RobotPeriodic() {}
 void Robot::TestPeriodic() {}
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+	Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);}
 void Robot::AutonomousInit() {}
 void Robot::AutonomousPeriodic() {}
 
@@ -223,28 +226,30 @@ void Robot::TeleopPeriodic()
     {  
 
         // Send Payload Arm to hatch levels
-        if (Joystick_GamePad.GetRawButton(BUTTON_GREEN)) {   
-            Payload_Lift_Leader.Set(ControlMode::PercentOutput, PAYLOAD_LIFT_SPEED_GAIN);
-            //Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_LOWEST_HATCH_LEVEL_MOTOR_POSITION);
+        if (Joystick_GamePad.GetRawButton(BUTTON_GREEN)) {    
+            Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_LOWEST_HATCH_LEVEL_MOTOR_POSITION);
+            //someServo.SetPosition(0);
         } 
         else if (Joystick_GamePad.GetRawButton(BUTTON_BLUE)) 
         { 
             Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_MIDDLE_HATCH_LEVEL_MOTOR_POSITION); 
+            //someServo.SetPosition(0.5);
         } 
         else if (Joystick_GamePad.GetRawButton(BUTTON_YELLOW)) 
-        { 
+        {  
             Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_HIGHEST_HATCH_LEVEL_MOTOR_POSITION); 
+            //someServo.SetPosition(1);
         } 
         else if (Joystick_GamePad.GetRawButton(BUTTON_RED)) 
-        { 
-            Payload_Lift_Leader.Set(ControlMode::PercentOutput, -PAYLOAD_LIFT_SPEED_GAIN);
+        {  
+
         } 
         else 
         { 
             Payload_Lift_Leader.Set(ControlMode::PercentOutput, 0);
         }
 
-        std::cout << "Current Quadrature Position: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+        std::cout << "Current Quadrature Position: " << -Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
     }  
 
     if(ENABLE_END_EFFECTOR)
