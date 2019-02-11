@@ -3,12 +3,12 @@
 
 class Excelsior_Omni_Drive
 {
-    public:
-        void Configure_Omni_Drive();
-        void Omni_Drive_Action(double,double,double);
+  public:
+    void Configure_Omni_Drive();
+    void Omni_Drive_Action(double, double, double);
 };
 
-enum Payload_Lift_Position 
+enum Payload_Lift_Position
 {
     Ground_Position,
     Travel_Position,
@@ -19,7 +19,7 @@ enum Payload_Lift_Position
     Middle_Hatch_Position,
     Middle_Cargo_Position,
 
-    Highest_Hatch_Position,   
+    Highest_Hatch_Position,
     Highest_Cargo_Position,
 
     Maximum_Height_Position
@@ -27,17 +27,17 @@ enum Payload_Lift_Position
 
 class Excelsior_Payload_Lift
 {
-    public: 
-        void Configure_Payload_Lift();
-        void Payload_Lift_Action(Payload_Lift_Position);
+  public:
+    void Configure_Payload_Lift();
+    void Payload_Lift_Action(Payload_Lift_Position);
 };
 
 class Excelsior_End_Effector
 {
-    public:
-        void Configure_End_Effector();
-        void Cargo_Roller_Action(bool);
-        void Hatch_Flower_Action(bool);
+  public:
+    void Configure_End_Effector();
+    void Cargo_Roller_Action(bool, double);
+    void Hatch_Flower_Action(bool);
 };
 
 #endif

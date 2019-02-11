@@ -10,9 +10,8 @@
 #include <iostream>
 #include <Math.h>
 
-
 /*************************************************************************************************/
-/*** Definitions ****/
+/**** Definitions ****/
 
 // Omni Drive -- CAN device numbers
 #define DEVICENUMBER_FRONTLEFT_LEADER 1
@@ -34,28 +33,26 @@
 #define OMNI_DRIVE_DEADBAND_VALUE 0.12
 
 // Converting to RPS for ToughBox output
-#define CONVERT_TO_RPS 1024 
-
+#define CONVERT_TO_RPS 1024
 
 /*************************************************************************************************/
-/*** Declarations ****/
+/**** Declarations ****/
 
 // Omni Drive -- Motor Drivers
-WPI_TalonSRX FrontLeft_Leader { DEVICENUMBER_FRONTLEFT_LEADER }; 
-VictorSPX FrontLeft_Follower { DEVICENUMBER_FRONTLEFT_FOLLOWER }; 
+WPI_TalonSRX FrontLeft_Leader{DEVICENUMBER_FRONTLEFT_LEADER};
+VictorSPX FrontLeft_Follower{DEVICENUMBER_FRONTLEFT_FOLLOWER};
 
-WPI_TalonSRX RearLeft_Leader { DEVICENUMBER_REARLEFT_LEADER };  
-VictorSPX RearLeft_Follower { DEVICENUMBER_REARLEFT_FOLLOWER };  
+WPI_TalonSRX RearLeft_Leader{DEVICENUMBER_REARLEFT_LEADER};
+VictorSPX RearLeft_Follower{DEVICENUMBER_REARLEFT_FOLLOWER};
 
-WPI_TalonSRX FrontRight_Leader { DEVICENUMBER_FRONTRIGHT_LEADER }; 
-VictorSPX FrontRight_Follower { DEVICENUMBER_FRONTRIGHT_FOLLOWER }; 
+WPI_TalonSRX FrontRight_Leader{DEVICENUMBER_FRONTRIGHT_LEADER};
+VictorSPX FrontRight_Follower{DEVICENUMBER_FRONTRIGHT_FOLLOWER};
 
-WPI_TalonSRX RearRight_Leader { DEVICENUMBER_REARRIGHT_LEADER }; 
-VictorSPX RearRight_Follower { DEVICENUMBER_REARRIGHT_FOLLOWER }; 
-
+WPI_TalonSRX RearRight_Leader{DEVICENUMBER_REARRIGHT_LEADER};
+VictorSPX RearRight_Follower{DEVICENUMBER_REARRIGHT_FOLLOWER};
 
 /*************************************************************************************************/
-/*** Configuration ****/
+/**** Configuration ****/
 
 void Excelsior_Omni_Drive::Configure_Omni_Drive()
 {
@@ -77,20 +74,21 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
     RearRight_Follower.Follow(RearRight_Leader);
 }
 
-
 /*************************************************************************************************/
-/*** Actions ****/
+/**** Actions ****/
 
 void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, double rotation)
 {
     // Deadband for joystick
-    if(x_value < OMNI_DRIVE_DEADBAND_VALUE && x_value > -OMNI_DRIVE_DEADBAND_VALUE) x_value = 0;
-    if(y_value < OMNI_DRIVE_DEADBAND_VALUE && y_value > -OMNI_DRIVE_DEADBAND_VALUE) y_value = 0;
+    if (x_value < OMNI_DRIVE_DEADBAND_VALUE && x_value > -OMNI_DRIVE_DEADBAND_VALUE)
+        x_value = 0;
+    if (y_value < OMNI_DRIVE_DEADBAND_VALUE && y_value > -OMNI_DRIVE_DEADBAND_VALUE)
+        y_value = 0;
 
     // Scale and vector direction
     double scalar = hypot(x_value, y_value);
     double direction = atan2(y_value, x_value) - (M_PI / 4);
-    
+
     // Set calculated speed -1 to 1
     double speed_frontLeft = scalar * cos(direction) + rotation;
     double speed_frontRight = scalar * sin(direction) - rotation;

@@ -10,9 +10,8 @@
 #include <iostream>
 #include <map>
 
-
 /*************************************************************************************************/
-/*** Definitions ****/
+/**** Definitions ****/
 
 // CAN device numbers
 #define PAYLOAD_LIFT_DEVICENUMBER_LEADER 22
@@ -22,43 +21,39 @@
 #define PAYLOAD_LIFT_SPEED_RPS 1.0
 
 // Debugging Bits
-#define PRINT_PAYLOAD_LIFT_ENCODER false
+#define PRINT_PAYLOAD_LIFT_ENCODER true
 
 // Lift Positions by Encoded Rotations
-std::map <Payload_Lift_Position, int> Lift_Position
-{
+std::map<Payload_Lift_Position, int> Lift_Position{
     {Ground_Position, 0},
     {Travel_Position, 5},
     {Lowest_Hatch_Position, 10},
     {Lowest_Cargo_Position, 15},
     {Middle_Hatch_Position, 20},
     {Middle_Cargo_Position, 25},
-    {Highest_Hatch_Position, 30},   
+    {Highest_Hatch_Position, 30},
     {Highest_Cargo_Position, 35},
-    {Maximum_Height_Position, 40}
-};
+    {Maximum_Height_Position, 40}};
 
 // Converting to RPS for ToughBox output
-#define CONVERT_TO_RPS 1024 
-
+#define CONVERT_TO_RPS 1024
 
 /*************************************************************************************************/
-/*** Declarations ****/
- 
+/**** Declarations ****/
+
 // Motor Drivers
-WPI_TalonSRX Payload_Lift_Leader { PAYLOAD_LIFT_DEVICENUMBER_LEADER };
-VictorSPX Payload_Lift_Follower { PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER };
- 
+WPI_TalonSRX Payload_Lift_Leader{PAYLOAD_LIFT_DEVICENUMBER_LEADER};
+VictorSPX Payload_Lift_Follower{PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER};
 
 /*************************************************************************************************/
-/*** Configuration ****/
- 
-void Excelsior_Payload_Lift::Configure_Payload_Lift() 
+/**** Configuration ****/
+
+void Excelsior_Payload_Lift::Configure_Payload_Lift()
 {
     // Set up encoder
     Payload_Lift_Leader.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, 0);
-    Payload_Lift_Leader.SetSensorPhase(true); 
-	Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);
+    Payload_Lift_Leader.SetSensorPhase(true);
+    Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);
 
     // Set rotation direction, clockwise == false
     Payload_Lift_Leader.SetInverted(false);
@@ -66,19 +61,20 @@ void Excelsior_Payload_Lift::Configure_Payload_Lift()
     Payload_Lift_Follower.Follow(Payload_Lift_Leader);
 }
 
-
 /*************************************************************************************************/
-/*** Actions ****/
+/**** Actions ****/
 
-void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position) 
-{ 
+void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position)
+{
     // Tell motor drive to use encoder-feedback for a lift position
     Payload_Lift_Leader.Set(ControlMode::Position, Lift_Position[position]);
 
     // Velocity control example
     // Payload_Lift_Leader.Set(ControlMode::Velocity, CONVERT_TO_RPS * PAYLOAD_LIFT_SPEED_RPS);
 
-    if(PRINT_PAYLOAD_LIFT_ENCODER){
-        std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl; 
-    }   
+    if (PRINT_PAYLOAD_LIFT_ENCODER)
+    {
+        // std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+        std::cout << "Lift Target: " << Lift_Position[position] << std::endl;
+    }
 }
