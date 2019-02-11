@@ -3,21 +3,17 @@
 
 #include "Robot.h"
 #include "frc/WPILib.h"
-#include "frc/PWM.h"
-#include "frc/drive/MecanumDrive.h"
-#include "ctre/Phoenix.h"
-#include <iostream>
-#include <frc/Talon.h>
-#include <Math.h>
+
 #include "Excelsior_Classes.h"
+#include <iostream>
 
 
 /*************************************************************************************************/
 /*** Definitions ****/
 
 // Enabling Bits
-#define ENABLE_DRIVETRAIN true
-#define ENABLE_PAYLOAD false
+#define ENABLE_OMNI_DRIVE true
+#define ENABLE_PAYLOAD_LIFT false
 #define ENABLE_END_EFFECTOR false
 
 // Joystick COM channels
@@ -44,33 +40,88 @@
 #define AXIS_RIGHT_Y 5
 
 
-
-
 /*************************************************************************************************/
 /*** Declarations ****/
 
-Excelsior_OmniDrive Omni_Drive;
-Excelsior_Payload Payload;
-Hatch_Flower Hatch;
+// Custom objects
+Excelsior_Omni_Drive Omni_Drive;
+Excelsior_Payload_Lift Payload_Lift;
+Excelsior_End_Effector End_Effector;
 
 // Joystick -- Controllers
 frc::Joystick Joystick_GamePad { JOYSTICK_CHANNEL_GAMEPAD };
 frc::Joystick Joystick_DriveStick { JOYSTICK_CHANNEL_DRIVESTICK };
 
-enum PHeights {
-    Ground,
-    HatchLow,
-    HatchMid,
-    HatchHigh,
-    CargoLow,
-    CargoMid,
-    CargoHigh
-};
-int targetPayloadHeight;
+int targetPayloadHeight = -1;
+
 
 /*************************************************************************************************/
-/*** Custom Functions ****/ 
+/*** Teleop Periodic ****/
 
+void Robot::TeleopPeriodic()
+{
+    if(ENABLE_OMNI_DRIVE)
+    {
+        // Drive robot using GamePad
+        Omni_Drive.Omni_Drive_Action(Joystick_GamePad.GetX(), -Joystick_GamePad.GetY(), Joystick_GamePad.GetRawAxis(AXIS_RIGHT_X));
+    }
+
+    if(ENABLE_PAYLOAD_LIFT) {   
+        
+        // Cargo LOW
+        if (Joystick_GamePad.GetRawButton(BUTTON_GREEN) && Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT)) {    
+            targetPayloadHeight = (int)Lowest_Cargo_Position; 
+            Payload_Lift.Payload_Lift_Action(Lowest_Cargo_Position);
+        }
+
+        // Hatch LOW
+        else if (Joystick_GamePad.GetRawButton(BUTTON_GREEN)){
+            targetPayloadHeight = (int)Lowest_Hatch_Position; 
+            Payload_Lift.Payload_Lift_Action(Lowest_Hatch_Position);
+        }
+
+        // Cargo MIDDLE
+        else if (Joystick_GamePad.GetRawButton(BUTTON_BLUE) && Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT)) {  
+            targetPayloadHeight = (int)Middle_Cargo_Position; 
+            Payload_Lift.Payload_Lift_Action(Middle_Cargo_Position);
+        } 
+        
+        // Hatch MIDDLE
+        else if (Joystick_GamePad.GetRawButton(BUTTON_BLUE)){ 
+            targetPayloadHeight = (int)Middle_Hatch_Position; 
+            Payload_Lift.Payload_Lift_Action(Middle_Hatch_Position);
+        }
+
+        // Cargo HIGH
+        else if (Joystick_GamePad.GetRawButton(BUTTON_YELLOW) && Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT)) {   
+            targetPayloadHeight = (int)Highest_Cargo_Position; 
+            Payload_Lift.Payload_Lift_Action(Highest_Cargo_Position);
+        }
+
+        // Hatch HIGH
+        else if (Joystick_GamePad.GetRawButton(BUTTON_YELLOW)){
+            targetPayloadHeight = (int)Highest_Hatch_Position; 
+            Payload_Lift.Payload_Lift_Action(Highest_Hatch_Position);
+        }
+
+        // Move to next highest lift position
+        else if (Joystick_GamePad.GetPOV() == 0) {      
+            if (targetPayloadHeight < Highest_Cargo_Position) targetPayloadHeight++;
+            Payload_Lift.Payload_Lift_Action((Payload_Lift_Position)targetPayloadHeight);    
+        }
+
+        // Move to next lowest lift position
+        else if (Joystick_GamePad.GetPOV() == 180) {     
+            if (targetPayloadHeight > 0) targetPayloadHeight--;
+            Payload_Lift.Payload_Lift_Action((Payload_Lift_Position)targetPayloadHeight);
+        }
+    }  
+
+    if(ENABLE_END_EFFECTOR)
+    {
+        // TODO: Add Actions
+    }  
+}
 
 
 /*************************************************************************************************/
@@ -79,10 +130,8 @@ int targetPayloadHeight;
 void Robot::RobotInit()
 {    
     Omni_Drive.Configure_Omni_Drive();
-
-    Payload.Configure_Payload_Lift();
-
-    Hatch.Configure_End_Effector();
+    Payload_Lift.Configure_Payload_Lift();
+    End_Effector.Configure_End_Effector();
 }
 
 
@@ -94,92 +143,6 @@ void Robot::TestPeriodic() {}
 void Robot::AutonomousInit() {}
 void Robot::AutonomousPeriodic() {}
 void Robot::TeleopInit() {} 
-
-/*************************************************************************************************/
-/*** Teleop Periodic ****/
-
-void Robot::TeleopPeriodic()
-{
-    if(ENABLE_DRIVETRAIN)
-    {
-        // Drive robot using GamePad joystick
-        Omni_Drive.OmniDrive_SpeedControl(Joystick_GamePad.GetX(), -Joystick_GamePad.GetY(), Joystick_GamePad.GetRawAxis(AXIS_RIGHT_X));
-    }
-
-    if(ENABLE_PAYLOAD) {   
-        
-        if (Joystick_GamePad.GetRawButton(BUTTON_GREEN)) {    
-            if (Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT)) { 
-                targetPayloadHeight = (int)CargoLow; 
-                Payload.Payload_Action(Lowest_Cargo_Position);
-
-            } else {    
-                targetPayloadHeight = (int)HatchLow; 
-                Payload.Payload_Action(Lowest_Hatch_Position);
-            }
-        } else if (Joystick_GamePad.GetRawButton(BUTTON_BLUE)) {  
-            if (Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT)) { 
-                targetPayloadHeight = (int)CargoMid; 
-                Payload.Payload_Action(Middle_Cargo_Position);
-
-            } else { 
-                targetPayloadHeight = (int)HatchMid; 
-                Payload.Payload_Action(Middle_Hatch_Position);
-
-            }
-        } else if (Joystick_GamePad.GetRawButton(BUTTON_YELLOW)) {   
-            if (Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT)) { 
-                targetPayloadHeight = (int)CargoHigh; 
-                Payload.Payload_Action(Highest_Cargo_Position);
-
-            } else { 
-                targetPayloadHeight = (int)HatchHigh; 
-                Payload.Payload_Action(Highest_Hatch_Position);
-                
-            }
-        } else if (Joystick_GamePad.GetPOV() == 0) {      
-            //CargoHigh is the highest value for PHeights
-            if (targetPayloadHeight < CargoHigh) {targetPayloadHeight++; }
-            Payload.Payload_Action((PHeights)targetPayloadHeight);
-            
-        } else if (Joystick_GamePad.GetPOV() == 180) {     
-            if (targetPayloadHeight > 0) {targetPayloadHeight--; }
-            Payload.Payload_Action((PHeights)targetPayloadHeight);
-
-        } else if (Joystick_GamePad.GetRawButton(BUTTON_RED))  {    
-            Payload.Payload_Action(Halt_Motor);
-        }
-
-        //std::cout << "Current Quadrature Position: " << -Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
-    }  
-
-    if(ENABLE_END_EFFECTOR)
-    {
-        // Pick Up Cargo
-        if (Joystick_GamePad.GetRawButton(BUTTON_YELLOW)) 
-        {
-			// TODO: Add drive logic for cargo pick up
-        }
-
-        // Deliver Cargo
-        else if (Joystick_GamePad.GetRawButton(BUTTON_BLUE)) 
-        {
-			// TODO: Add drive logic for cargo delivery
-        }
-
-        // Catch Hatch
-        else if (Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT)) 
-        {
-			// TODO: Add drive logic for hatch catch
-        }
-
-        // Release Hatch
-        else if (Joystick_GamePad.GetRawButton(BUTTON_BUMPER_RIGHT)) 
-        {
-			// Hatch_Catch_Servo.SetPosition(0.5);
-        }
-    }  
-}
 
 
 /*************************************************************************************************/

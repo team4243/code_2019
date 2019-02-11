@@ -4,44 +4,58 @@
 #include "Excelsior_Classes.h"
 
 #include "frc/WPILib.h"
-#include "frc/PWM.h"
-#include "frc/drive/MecanumDrive.h"
 #include "ctre/Phoenix.h"
-#include <iostream>
 #include <frc/Talon.h>
-#include <Math.h>
+
+#include <iostream>
+#include <map>
 
 
 /*************************************************************************************************/
 /*** Definitions ****/
 
-// Payload Lift -- CAN device numbers
+// CAN device numbers
 #define PAYLOAD_LIFT_DEVICENUMBER_LEADER 22
 #define PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER 23
 
-// Payload Lift -- Speed Gain
-#define PAYLOAD_LIFT_SPEED_GAIN 0.2
-#define ROTATIONS_PER_SECOND 1
+// Speed as Rotations Per Second (RPS)
+#define PAYLOAD_LIFT_SPEED_RPS 1.0
 
-// Payload Lift Positions by Encoder Values
-#define PAYLOAD_LOWEST_HATCH_LEVEL_MOTOR_POSITION 0
-#define PAYLOAD_MIDDLE_HATCH_LEVEL_MOTOR_POSITION 512
-#define PAYLOAD_HIGHEST_HATCH_LEVEL_MOTOR_POSITION 1024
+// Debugging Bits
+#define PRINT_PAYLOAD_LIFT_ENCODER false
 
-// Converting to rotations per second for ToughBox output
+// Lift Positions by Encoded Rotations
+std::map <Payload_Lift_Position, int> Lift_Position
+{
+    {Ground_Position, 0},
+    {Travel_Position, 5},
+    {Lowest_Hatch_Position, 10},
+    {Lowest_Cargo_Position, 15},
+    {Middle_Hatch_Position, 20},
+    {Middle_Cargo_Position, 25},
+    {Highest_Hatch_Position, 30},   
+    {Highest_Cargo_Position, 35},
+    {Maximum_Height_Position, 40}
+};
+
+// Converting to RPS for ToughBox output
 #define CONVERT_TO_RPS 1024 
+
 
 /*************************************************************************************************/
 /*** Declarations ****/
  
-// Payload Lift -- Motor Drivers
+// Motor Drivers
 WPI_TalonSRX Payload_Lift_Leader { PAYLOAD_LIFT_DEVICENUMBER_LEADER };
 VictorSPX Payload_Lift_Follower { PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER };
  
+
 /*************************************************************************************************/
-/*** Custom Functions ****/
+/*** Configuration ****/
  
-void Excelsior_Payload::Configure_Payload_Lift() {
+void Excelsior_Payload_Lift::Configure_Payload_Lift() 
+{
+    // Set up encoder
     Payload_Lift_Leader.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, 0);
     Payload_Lift_Leader.SetSensorPhase(true); 
 	Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);
@@ -52,37 +66,19 @@ void Excelsior_Payload::Configure_Payload_Lift() {
     Payload_Lift_Follower.Follow(Payload_Lift_Leader);
 }
 
-void Excelsior_Payload::Payload_Action(PYActions action) {
-    switch (action) {
 
-        case Lowest_Hatch_Position: 
-            Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_LOWEST_HATCH_LEVEL_MOTOR_POSITION);
-        break;
+/*************************************************************************************************/
+/*** Actions ****/
 
-        case Middle_Hatch_Position: 
-            Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_MIDDLE_HATCH_LEVEL_MOTOR_POSITION);
-        break;
+void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position) 
+{ 
+    // Tell motor drive to use encoder-feedback for a lift position
+    Payload_Lift_Leader.Set(ControlMode::Position, Lift_Position[position]);
 
-        case Highest_Hatch_Position: 
-            Payload_Lift_Leader.Set(ControlMode::Position, PAYLOAD_HIGHEST_HATCH_LEVEL_MOTOR_POSITION);
-        break;
+    // Velocity control example
+    // Payload_Lift_Leader.Set(ControlMode::Velocity, CONVERT_TO_RPS * PAYLOAD_LIFT_SPEED_RPS);
 
-        case Lower_Hatch: 
-            Payload_Lift_Leader.Set(ControlMode::Velocity, -CONVERT_TO_RPS * ROTATIONS_PER_SECOND); 
-        break;
-
-        case Raise_Hatch: 
-            Payload_Lift_Leader.Set(ControlMode::Velocity, CONVERT_TO_RPS * ROTATIONS_PER_SECOND); 
-        break;
-
-        case Halt_Motor: 
-            Payload_Lift_Leader.Set(ControlMode::PercentOutput, 0);  
-        break;
-
-        default:
-            Payload_Lift_Leader.Set(ControlMode::PercentOutput, 0);  
-        break;
-    }
-
-
+    if(PRINT_PAYLOAD_LIFT_ENCODER){
+        std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl; 
+    }   
 }
