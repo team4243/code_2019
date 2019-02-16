@@ -50,14 +50,25 @@ void Excelsior_End_Effector::Configure_End_Effector()
 /*************************************************************************************************/
 /**** Actions ****/
 
-void Excelsior_End_Effector::Cargo_Roller_Action(bool dispense, double speed)
+void Excelsior_End_Effector::Cargo_Roller_Action(bool dispense, double speed, bool manual)
 {
-    Cargo_Roller_Leader.Set(ControlMode::PercentOutput, 0.2);
+    // Auto 
+    if(!manual)
+    {
+        if (dispense)
+            Cargo_Roller_Leader.Set(ControlMode::Velocity, speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS);
+        else
+            Cargo_Roller_Leader.Set(ControlMode::Velocity, -speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS);
+    }
 
-    // if (dispense)
-    //     Cargo_Roller_Leader.Set(ControlMode::Velocity, speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS);
-    // else
-    //     Cargo_Roller_Leader.Set(ControlMode::Velocity, speed * -CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS);
+    // Manual
+    else
+    {
+        if (dispense)
+            Cargo_Roller_Leader.Set(ControlMode::PercentOutput, speed);
+        else
+            Cargo_Roller_Leader.Set(ControlMode::PercentOutput, -speed);
+    }
 }
 
 void Excelsior_End_Effector::Hatch_Flower_Action(bool extend)
@@ -67,6 +78,9 @@ void Excelsior_End_Effector::Hatch_Flower_Action(bool extend)
     else
         Hatch_Flower_Servo.SetPosition(0);
 }
+
+/*************************************************************************************************/
+/**** Helper Functions ****/
 
 void Excelsior_End_Effector::Print_Roller_Encoders()
 {

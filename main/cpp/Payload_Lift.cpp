@@ -76,6 +76,9 @@ void Excelsior_Payload_Lift::Payload_Lift_Manual(bool direction)
     else Payload_Lift_Leader.Set(ControlMode::PercentOutput, PAYLOAD_LIFT_SPEED);
 }
 
+/*************************************************************************************************/
+/**** Helper Functions ****/
+
 void Excelsior_Payload_Lift::Print_Lift_Encoder(Payload_Lift_Position position)
 {
     std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() 

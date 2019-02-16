@@ -39,7 +39,7 @@ class Excelsior_End_Effector
 {
   public:
     void Configure_End_Effector();
-    void Cargo_Roller_Action(bool, double);
+    void Cargo_Roller_Action(bool, double, bool);
     void Hatch_Flower_Action(bool);
     void Print_Roller_Encoders();
 };

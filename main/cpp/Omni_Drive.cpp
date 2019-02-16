@@ -27,13 +27,16 @@
 #define DEVICENUMBER_REARRIGHT_FOLLOWER 8
 
 // Speed as Rotations Per Second (RPS)
-#define OMNI_DRIVE_SPEED_RPS 10.0
+#define OMNI_DRIVE_SPEED_RPS 10.0 // MAX is 125
 
 // Deadband for rejecting small movements of Joystick
 #define OMNI_DRIVE_DEADBAND_VALUE 0.12
 
 // Converting to RPS for ToughBox output
 #define CONVERT_TO_RPS 1024
+
+// Cap the maximum output
+#define OMNI_DRIVE_PEAK_OUTPUT 0.75
 
 /*************************************************************************************************/
 /**** Declarations ****/
@@ -63,20 +66,40 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
 {
     // Set rotation directions (clockwise == false) and set follower to leaders
     FrontLeft_Leader.SetInverted(true);
+    FrontLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    FrontLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+
     FrontLeft_Follower.SetInverted(true);
     FrontLeft_Follower.Follow(FrontLeft_Leader);
+    FrontLeft_Follower.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    FrontLeft_Follower.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
 
     RearLeft_Leader.SetInverted(true);
+    RearLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    RearLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+
     RearLeft_Follower.SetInverted(true);
     RearLeft_Follower.Follow(RearLeft_Leader);
+    RearLeft_Follower.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    RearLeft_Follower.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
 
     FrontRight_Leader.SetInverted(true);
+    FrontRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    FrontRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+
     FrontRight_Follower.SetInverted(true);
     FrontRight_Follower.Follow(FrontRight_Leader);
+    FrontRight_Follower.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    FrontRight_Follower.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
 
     RearRight_Leader.SetInverted(true);
+    RearRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    RearRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+
     RearRight_Follower.SetInverted(true);
     RearRight_Follower.Follow(RearRight_Leader);
+    RearRight_Follower.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    RearRight_Follower.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
 }
 
 /*************************************************************************************************/
@@ -111,13 +134,16 @@ void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, dou
     
     else
     {
-        // Manual mode driving
+        // Manual driving
         FrontLeft_Leader.Set(ControlMode::PercentOutput, speed_frontLeft);
         FrontRight_Leader.Set(ControlMode::PercentOutput, -speed_frontRight);
         RearLeft_Leader.Set(ControlMode::PercentOutput, speed_rearLeft);
         RearRight_Leader.Set(ControlMode::PercentOutput, -speed_rearRight);
     }   
 }
+
+/*************************************************************************************************/
+/**** Helper Functions ****/
 
 void Excelsior_Omni_Drive::Print_Omni_Encoders()
 {

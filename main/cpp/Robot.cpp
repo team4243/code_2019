@@ -206,12 +206,12 @@ void Robot::TeleopPeriodic()
         // Cargo Rollers
         if (Left_Trigger_Pressed && Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT))
         {
-            End_Effector.Cargo_Roller_Action(true, Left_Trigger_Value);
+            End_Effector.Cargo_Roller_Action(true, Left_Trigger_Value, Joystick_GamePad.GetRawButton(BUTTON_BUMPER_RIGHT));
         }
 
         else if (Right_Trigger_Pressed && Joystick_GamePad.GetRawButton(BUTTON_BUMPER_LEFT))
         {
-            End_Effector.Cargo_Roller_Action(false, Right_Trigger_Value);
+            End_Effector.Cargo_Roller_Action(false, Right_Trigger_Value, Joystick_GamePad.GetRawButton(BUTTON_BUMPER_RIGHT));
         }
 
         // Hatch Flower
