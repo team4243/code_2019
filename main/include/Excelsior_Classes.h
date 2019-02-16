@@ -5,7 +5,8 @@ class Excelsior_Omni_Drive
 {
   public:
     void Configure_Omni_Drive();
-    void Omni_Drive_Action(double, double, double);
+    void Omni_Drive_Action(double, double, double, bool);
+    void Print_Omni_Encoders();
 };
 
 enum Payload_Lift_Position
@@ -30,6 +31,8 @@ class Excelsior_Payload_Lift
   public:
     void Configure_Payload_Lift();
     void Payload_Lift_Action(Payload_Lift_Position);
+    void Payload_Lift_Manual(bool);
+    void Print_Lift_Encoder(Payload_Lift_Position);
 };
 
 class Excelsior_End_Effector
@@ -38,6 +41,7 @@ class Excelsior_End_Effector
     void Configure_End_Effector();
     void Cargo_Roller_Action(bool, double);
     void Hatch_Flower_Action(bool);
+    void Print_Roller_Encoders();
 };
 
 #endif

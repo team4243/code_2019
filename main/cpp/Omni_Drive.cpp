@@ -27,7 +27,7 @@
 #define DEVICENUMBER_REARRIGHT_FOLLOWER 8
 
 // Speed as Rotations Per Second (RPS)
-#define OMNI_DRIVE_SPEED_RPS 2.0
+#define OMNI_DRIVE_SPEED_RPS 10.0
 
 // Deadband for rejecting small movements of Joystick
 #define OMNI_DRIVE_DEADBAND_VALUE 0.12
@@ -50,6 +50,11 @@ VictorSPX FrontRight_Follower{DEVICENUMBER_FRONTRIGHT_FOLLOWER};
 
 WPI_TalonSRX RearRight_Leader{DEVICENUMBER_REARRIGHT_LEADER};
 VictorSPX RearRight_Follower{DEVICENUMBER_REARRIGHT_FOLLOWER};
+
+frc::Talon FL{0};
+WPI_TalonSRX FR{9};
+frc::Talon RL{2};
+frc::Talon RR{3};
 
 /*************************************************************************************************/
 /**** Configuration ****/
@@ -77,9 +82,9 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
 /*************************************************************************************************/
 /**** Actions ****/
 
-void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, double rotation)
-{
-    // Deadband for joystick
+void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, double rotation, bool manual)
+{   
+     // Deadband for joystick
     if (x_value < OMNI_DRIVE_DEADBAND_VALUE && x_value > -OMNI_DRIVE_DEADBAND_VALUE)
         x_value = 0;
     if (y_value < OMNI_DRIVE_DEADBAND_VALUE && y_value > -OMNI_DRIVE_DEADBAND_VALUE)
@@ -95,9 +100,30 @@ void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, dou
     double speed_rearLeft = scalar * sin(direction) + rotation;
     double speed_rearRight = scalar * cos(direction) - rotation;
 
-    // Drive motors at actual speed (calculated speed scaled by MAX rotations per second)
-    FrontLeft_Leader.Set(ControlMode::Velocity, speed_frontLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS);
-    FrontRight_Leader.Set(ControlMode::Velocity, -speed_frontRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS);
-    RearLeft_Leader.Set(ControlMode::Velocity, speed_rearLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS);
-    RearRight_Leader.Set(ControlMode::Velocity, -speed_rearRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS);
+    if(!manual)
+    {
+        // Drive motors at actual speed (calculated speed scaled by MAX rotations per second)
+        FrontLeft_Leader.Set(ControlMode::Velocity, speed_frontLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS);
+        FrontRight_Leader.Set(ControlMode::Velocity, -speed_frontRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS);
+        RearLeft_Leader.Set(ControlMode::Velocity, speed_rearLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS);
+        RearRight_Leader.Set(ControlMode::Velocity, -speed_rearRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS);
+    }
+    
+    else
+    {
+        // Manual mode driving
+        FrontLeft_Leader.Set(ControlMode::PercentOutput, speed_frontLeft);
+        FrontRight_Leader.Set(ControlMode::PercentOutput, -speed_frontRight);
+        RearLeft_Leader.Set(ControlMode::PercentOutput, speed_rearLeft);
+        RearRight_Leader.Set(ControlMode::PercentOutput, -speed_rearRight);
+    }   
+}
+
+void Excelsior_Omni_Drive::Print_Omni_Encoders()
+{
+    std::cout << "Omni FL: " << FrontLeft_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+        std::cout << "Omni FR: " << FrontRight_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+        std::cout << "Omni RL: " << RearLeft_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+        std::cout << "Omni RR: " << RearRight_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+        std::cout << std::endl << std::endl;
 }

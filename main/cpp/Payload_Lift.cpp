@@ -14,14 +14,14 @@
 /**** Definitions ****/
 
 // CAN device numbers
-#define PAYLOAD_LIFT_DEVICENUMBER_LEADER 22
-#define PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER 23
+#define PAYLOAD_LIFT_DEVICENUMBER_LEADER 35
+#define PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER 34
 
-// Speed as Rotations Per Second (RPS)
-#define PAYLOAD_LIFT_SPEED_RPS 1.0
+// Scaling the Lift Position for AUTO driving
+#define PAYLOAD_LIFT_POSITION_SCALAR 512
 
-// Debugging Bits
-#define PRINT_PAYLOAD_LIFT_ENCODER true
+// Speed in RPS (rotations per second) for MANUAL driving
+#define PAYLOAD_LIFT_SPEED 0.5 // 0 to 1
 
 // Lift Positions by Encoded Rotations
 std::map<Payload_Lift_Position, int> Lift_Position{
@@ -43,7 +43,7 @@ std::map<Payload_Lift_Position, int> Lift_Position{
 
 // Motor Drivers
 WPI_TalonSRX Payload_Lift_Leader{PAYLOAD_LIFT_DEVICENUMBER_LEADER};
-VictorSPX Payload_Lift_Follower{PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER};
+WPI_TalonSRX Payload_Lift_Follower{PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER};
 
 /*************************************************************************************************/
 /**** Configuration ****/
@@ -67,14 +67,18 @@ void Excelsior_Payload_Lift::Configure_Payload_Lift()
 void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position)
 {
     // Tell motor drive to use encoder-feedback for a lift position
-    Payload_Lift_Leader.Set(ControlMode::Position, Lift_Position[position]);
+    Payload_Lift_Leader.Set(ControlMode::Position, -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR);
+}
 
-    // Velocity control example
-    // Payload_Lift_Leader.Set(ControlMode::Velocity, CONVERT_TO_RPS * PAYLOAD_LIFT_SPEED_RPS);
+void Excelsior_Payload_Lift::Payload_Lift_Manual(bool direction)
+{
+    if(direction) Payload_Lift_Leader.Set(ControlMode::PercentOutput, -PAYLOAD_LIFT_SPEED);
+    else Payload_Lift_Leader.Set(ControlMode::PercentOutput, PAYLOAD_LIFT_SPEED);
+}
 
-    if (PRINT_PAYLOAD_LIFT_ENCODER)
-    {
-        // std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
-        std::cout << "Lift Target: " << Lift_Position[position] << std::endl;
-    }
+void Excelsior_Payload_Lift::Print_Lift_Encoder(Payload_Lift_Position position)
+{
+    std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() 
+            << ", Target: " << -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR 
+            << ", Pos: " << position << std::endl;
 }
