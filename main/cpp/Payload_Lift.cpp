@@ -14,29 +14,33 @@
 /**** Definitions ****/
 
 // CAN device numbers
-#define PAYLOAD_LIFT_DEVICENUMBER_LEADER 35
-#define PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER 34
+#define PAYLOAD_LIFT_DEVICENUMBER_LEADER (34)
+#define PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER (35)
 
 // Scaling the Lift Position for AUTO driving
-#define PAYLOAD_LIFT_POSITION_SCALAR 512
+#define PAYLOAD_LIFT_POSITION_SCALAR (512)
 
 // Speed in RPS (rotations per second) for MANUAL driving
-#define PAYLOAD_LIFT_SPEED 0.5 // 0 to 1
+#define PAYLOAD_LIFT_SPEED (0.5) // 0 to 1
+
+// Cap the maximum output
+#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.15) // DOWN
+#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.35) // UP
 
 // Lift Positions by Encoded Rotations
 std::map<Payload_Lift_Position, int> Lift_Position{
     {Ground_Position, 0},
-    {Travel_Position, 5},
-    {Lowest_Hatch_Position, 10},
-    {Lowest_Cargo_Position, 15},
-    {Middle_Hatch_Position, 20},
-    {Middle_Cargo_Position, 25},
-    {Highest_Hatch_Position, 30},
-    {Highest_Cargo_Position, 35},
+    {Travel_Position, 2},
+    {Lowest_Hatch_Position, 5},
+    {Lowest_Cargo_Position, 13},
+    {Middle_Hatch_Position, 17},
+    {Middle_Cargo_Position, 24},
+    {Highest_Hatch_Position, 28},
+    {Highest_Cargo_Position, 38},
     {Maximum_Height_Position, 40}};
 
 // Converting to RPS for ToughBox output
-#define CONVERT_TO_RPS 1024
+#define CONVERT_TO_RPS_LIFT 1024
 
 /*************************************************************************************************/
 /**** Declarations ****/
@@ -57,8 +61,13 @@ void Excelsior_Payload_Lift::Configure_Payload_Lift()
 
     // Set rotation direction, clockwise == false
     Payload_Lift_Leader.SetInverted(false);
+    // Payload_Lift_Leader.ConfigPeakOutputForward(PAYLOAD_LIFT_PEAK_OUTPUT_FWD);
+    // Payload_Lift_Leader.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);
+
     Payload_Lift_Follower.SetInverted(false);
     Payload_Lift_Follower.Follow(Payload_Lift_Leader);
+    // Payload_Lift_Follower.ConfigPeakOutputForward(PAYLOAD_LIFT_PEAK_OUTPUT_FWD);
+    // Payload_Lift_Follower.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);   
 }
 
 /*************************************************************************************************/
@@ -74,6 +83,11 @@ void Excelsior_Payload_Lift::Payload_Lift_Manual(bool direction)
 {
     if(direction) Payload_Lift_Leader.Set(ControlMode::PercentOutput, -PAYLOAD_LIFT_SPEED);
     else Payload_Lift_Leader.Set(ControlMode::PercentOutput, PAYLOAD_LIFT_SPEED);
+}
+
+void Excelsior_Payload_Lift::Stop()
+{
+    Payload_Lift_Leader.Set(ControlMode::Position, Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition());
 }
 
 /*************************************************************************************************/

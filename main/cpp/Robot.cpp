@@ -11,47 +11,47 @@
 /**** Definitions ****/
 
 // Enabling Bits
-#define ENABLE_OMNI_DRIVE true
-#define ENABLE_PAYLOAD_LIFT false
-#define ENABLE_END_EFFECTOR false
+#define ENABLE_OMNI_DRIVE (false)
+#define ENABLE_PAYLOAD_LIFT (true)
+#define ENABLE_END_EFFECTOR (false)
 
 // Enabled Encoder Printing
-#define PRINT_ENCODER_VALUES true
+#define PRINT_ENCODER_VALUES (true)
 
 // Joystick COM channels
-#define JOYSTICK_CHANNEL_GAMEPAD 0
-#define JOYSTICK_CHANNEL_DRIVESTICK 1
+#define JOYSTICK_CHANNEL_GAMEPAD (0)
+#define JOYSTICK_CHANNEL_DRIVESTICK (1)
 
 // Joystick Buttons
-#define BUTTON_GREEN 1
-#define BUTTON_RED 2
-#define BUTTON_BLUE 3
-#define BUTTON_YELLOW 4
+#define BUTTON_GREEN (1)
+#define BUTTON_RED (2)
+#define BUTTON_BLUE (3)
+#define BUTTON_YELLOW (4)
 
-#define BUTTON_BUMPER_LEFT 5
-#define BUTTON_BUMPER_RIGHT 6
+#define BUTTON_BUMPER_LEFT (5)
+#define BUTTON_BUMPER_RIGHT (6)
 
-#define BUTTON_BACK 7
-#define BUTTON_START 8
+#define BUTTON_BACK (7)
+#define BUTTON_START (8)
 
-#define BUTTON_LEFT_STICK_PRESS 9
-#define BUTTON_RIGHT_STICK_PRESS 10
+#define BUTTON_LEFT_STICK_PRESS (9)
+#define BUTTON_RIGHT_STICK_PRESS (10)
 
 // Joystick Directional Pad use POV()
 
 // Joystick Triggers
-#define AXIS_LEFT_TRIGGER 2 // 0 to 1
-#define AXIS_RIGHT_TRIGGER 3 // 0 to 1
+#define AXIS_LEFT_TRIGGER (2) // 0 to 1
+#define AXIS_RIGHT_TRIGGER (3) // 0 to 1
 
 // Joystick Wheels
-#define AXIS_LEFT_X 0
-#define AXIS_LEFT_Y 1
+#define AXIS_LEFT_X (0)
+#define AXIS_LEFT_Y (1)
 
-#define AXIS_RIGHT_X 4
-#define AXIS_RIGHT_Y 5
+#define AXIS_RIGHT_X (4)
+#define AXIS_RIGHT_Y (5)
 
 // Deadband for Triggers
-#define DEADBAND_TRIGGER 0.12
+#define DEADBAND_TRIGGER (0.12)
 
 /*************************************************************************************************/
 /**** Declarations ****/
@@ -185,6 +185,7 @@ void Robot::TeleopPeriodic()
         { 
             pressedLastFrame_autoLift = false;
             pressedLastFrame_manualLift = false; 
+            // Payload_Lift.Stop();
         }
 
         // Print raw encoder values

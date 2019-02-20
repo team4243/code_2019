@@ -33,6 +33,7 @@ class Excelsior_Payload_Lift
     void Payload_Lift_Action(Payload_Lift_Position);
     void Payload_Lift_Manual(bool);
     void Print_Lift_Encoder(Payload_Lift_Position);
+    void Stop();
 };
 
 class Excelsior_End_Effector

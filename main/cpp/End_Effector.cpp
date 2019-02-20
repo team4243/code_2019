@@ -14,17 +14,24 @@
 /**** Definitions ****/
 
 // Rollers CAN device numbers
-#define CARGO_ROLLER_DEVICENUMBER_LEADER 24
-#define CARGO_ROLLER_DEVICENUMBER_FOLLOWER 25
+#define CARGO_ROLLER_DEVICENUMBER_LEADER (24)
+#define CARGO_ROLLER_DEVICENUMBER_FOLLOWER (25)
 
 // Hatch Flower Servo PWM Channel
-#define HATCH_FLOWER_PWM_CHANNEL 1
+#define HATCH_FLOWER_PWM_CHANNEL (1)
+
+// End Effector Limit Switch Channel
+#define LIMIT_SWITCH_CHANNEL (2)
 
 // Speed as Rotations Per Second (RPS)
-#define CARGO_ROLLER_SPEED_RPS 1.0
+#define CARGO_ROLLER_SPEED_RPS (1.0)
 
 // Converting to RPS for ToughBox output
-#define CONVERT_TO_RPS 1024
+#define CONVERT_TO_RPS_EE (1024)
+
+// Cap the maximum output
+#define ROLLERS_PEAK_OUTPUT_FWD (0.35)
+#define ROLLERS_PEAK_OUTPUT_REV (-0.35)
 
 /*************************************************************************************************/
 /**** Declarations ****/
@@ -35,6 +42,10 @@ WPI_TalonSRX Cargo_Roller_Follower{CARGO_ROLLER_DEVICENUMBER_FOLLOWER};
 
 // End Effector -- Hatch Catch Servo
 frc::PWM Hatch_Flower_Servo(HATCH_FLOWER_PWM_CHANNEL);
+
+//We are adding a limit switch to check to see if the cargo is firmly secured within the end effector.
+//pressed limit switch = true 
+// DigitalInput End_Effector_Limit_Switch(LIMIT_SWITCH_CHANNEL); 
 
 /*************************************************************************************************/
 /**** Configuration ****/
@@ -56,18 +67,30 @@ void Excelsior_End_Effector::Cargo_Roller_Action(bool dispense, double speed, bo
     if(!manual)
     {
         if (dispense)
-            Cargo_Roller_Leader.Set(ControlMode::Velocity, speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS);
+        {
+            Cargo_Roller_Leader.Set(ControlMode::Velocity, speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS_EE);
+        }
+
         else
-            Cargo_Roller_Leader.Set(ControlMode::Velocity, -speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS);
+        {
+            // if(!End_Effector_Limit_Switch.Get())
+            Cargo_Roller_Leader.Set(ControlMode::Velocity, -speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS_EE);
+        }           
     }
 
     // Manual
     else
     {
         if (dispense)
+        {
             Cargo_Roller_Leader.Set(ControlMode::PercentOutput, speed);
+        }
+
         else
+        {
+            // if(!End_Effector_Limit_Switch.Get())
             Cargo_Roller_Leader.Set(ControlMode::PercentOutput, -speed);
+        }
     }
 }
 
