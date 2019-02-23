@@ -44,8 +44,8 @@ WPI_TalonSRX Cargo_Roller_Follower{CARGO_ROLLER_DEVICENUMBER_FOLLOWER};
 frc::PWM Hatch_Flower_Servo(HATCH_FLOWER_PWM_CHANNEL);
 
 //We are adding a limit switch to check to see if the cargo is firmly secured within the end effector.
-//pressed limit switch = true 
-// DigitalInput End_Effector_Limit_Switch(LIMIT_SWITCH_CHANNEL); 
+//pressed limit switch = true
+// DigitalInput End_Effector_Limit_Switch(LIMIT_SWITCH_CHANNEL);
 
 /*************************************************************************************************/
 /**** Configuration ****/
@@ -63,8 +63,8 @@ void Excelsior_End_Effector::Configure_End_Effector()
 
 void Excelsior_End_Effector::Cargo_Roller_Action(bool dispense, double speed, bool manual)
 {
-    // Auto 
-    if(!manual)
+    // Auto
+    if (!manual)
     {
         if (dispense)
         {
@@ -75,7 +75,7 @@ void Excelsior_End_Effector::Cargo_Roller_Action(bool dispense, double speed, bo
         {
             // if(!End_Effector_Limit_Switch.Get())
             Cargo_Roller_Leader.Set(ControlMode::Velocity, -speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS_EE);
-        }           
+        }
     }
 
     // Manual
@@ -107,6 +107,6 @@ void Excelsior_End_Effector::Hatch_Flower_Action(bool extend)
 
 void Excelsior_End_Effector::Print_Roller_Encoders()
 {
-    std::cout << "Roller: " << Cargo_Roller_Leader.GetSensorCollection().GetQuadraturePosition() 
-        << std::endl;
+    std::cout << "Roller: " << Cargo_Roller_Leader.GetSensorCollection().GetQuadraturePosition()
+              << std::endl;
 }

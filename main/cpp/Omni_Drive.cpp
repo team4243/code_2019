@@ -102,8 +102,8 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
 /**** Actions ****/
 
 void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, double rotation, bool manual)
-{   
-     // Deadband for joystick
+{
+    // Deadband for joystick
     if (x_value < OMNI_DRIVE_DEADBAND_VALUE && x_value > -OMNI_DRIVE_DEADBAND_VALUE)
         x_value = 0;
     if (y_value < OMNI_DRIVE_DEADBAND_VALUE && y_value > -OMNI_DRIVE_DEADBAND_VALUE)
@@ -127,15 +127,15 @@ void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, dou
     //     RearLeft_Leader.Set(ControlMode::Velocity, speed_rearLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
     //     RearRight_Leader.Set(ControlMode::Velocity, -speed_rearRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
     // }
-    
+
     // else
     // {
-        // Manual driving
-        FrontLeft_Leader.Set(ControlMode::PercentOutput, speed_frontLeft);
-        FrontRight_Leader.Set(ControlMode::PercentOutput, -speed_frontRight);
-        RearLeft_Leader.Set(ControlMode::PercentOutput, speed_rearLeft);
-        RearRight_Leader.Set(ControlMode::PercentOutput, -speed_rearRight);
-    // }   
+    // Manual driving
+    FrontLeft_Leader.Set(ControlMode::PercentOutput, speed_frontLeft);
+    FrontRight_Leader.Set(ControlMode::PercentOutput, -speed_frontRight);
+    RearLeft_Leader.Set(ControlMode::PercentOutput, speed_rearLeft);
+    RearRight_Leader.Set(ControlMode::PercentOutput, -speed_rearRight);
+    // }
 }
 
 /*************************************************************************************************/
@@ -144,8 +144,9 @@ void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, dou
 void Excelsior_Omni_Drive::Print_Omni_Encoders()
 {
     std::cout << "Omni FL: " << FrontLeft_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
-        std::cout << "Omni FR: " << FrontRight_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
-        std::cout << "Omni RL: " << RearLeft_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
-        std::cout << "Omni RR: " << RearRight_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
-        std::cout << std::endl << std::endl;
+    std::cout << "Omni FR: " << FrontRight_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+    std::cout << "Omni RL: " << RearLeft_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+    std::cout << "Omni RR: " << RearRight_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
+    std::cout << std::endl
+              << std::endl;
 }

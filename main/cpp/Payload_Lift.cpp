@@ -24,8 +24,14 @@
 #define PAYLOAD_LIFT_SPEED (0.5) // 0 to 1
 
 // Cap the maximum output
-#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.15) // DOWN
+#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.15)  // DOWN
 #define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.35) // UP
+
+// Converting to RPS for ToughBox output
+#define CONVERT_TO_RPS_LIFT 1024
+
+/*************************************************************************************************/
+/**** Declarations ****/
 
 // Lift Positions by Encoded Rotations
 std::map<Payload_Lift_Position, int> Lift_Position{
@@ -38,12 +44,6 @@ std::map<Payload_Lift_Position, int> Lift_Position{
     {Highest_Hatch_Position, 28},
     {Highest_Cargo_Position, 38},
     {Maximum_Height_Position, 40}};
-
-// Converting to RPS for ToughBox output
-#define CONVERT_TO_RPS_LIFT 1024
-
-/*************************************************************************************************/
-/**** Declarations ****/
 
 // Motor Drivers
 WPI_TalonSRX Payload_Lift_Leader{PAYLOAD_LIFT_DEVICENUMBER_LEADER};
@@ -67,7 +67,7 @@ void Excelsior_Payload_Lift::Configure_Payload_Lift()
     Payload_Lift_Follower.SetInverted(false);
     Payload_Lift_Follower.Follow(Payload_Lift_Leader);
     // Payload_Lift_Follower.ConfigPeakOutputForward(PAYLOAD_LIFT_PEAK_OUTPUT_FWD);
-    // Payload_Lift_Follower.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);   
+    // Payload_Lift_Follower.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);
 }
 
 /*************************************************************************************************/
@@ -81,13 +81,15 @@ void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position)
 
 void Excelsior_Payload_Lift::Payload_Lift_Manual(bool direction)
 {
-    if(direction) Payload_Lift_Leader.Set(ControlMode::PercentOutput, -PAYLOAD_LIFT_SPEED);
-    else Payload_Lift_Leader.Set(ControlMode::PercentOutput, PAYLOAD_LIFT_SPEED);
+    if (direction)
+        Payload_Lift_Leader.Set(ControlMode::PercentOutput, -PAYLOAD_LIFT_SPEED);
+    else
+        Payload_Lift_Leader.Set(ControlMode::PercentOutput, PAYLOAD_LIFT_SPEED);
 }
 
 void Excelsior_Payload_Lift::Stop()
 {
-    Payload_Lift_Leader.Set(ControlMode::Position, Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition());
+    Payload_Lift_Leader.Set(ControlMode::Position, 0);
 }
 
 /*************************************************************************************************/
@@ -95,7 +97,7 @@ void Excelsior_Payload_Lift::Stop()
 
 void Excelsior_Payload_Lift::Print_Lift_Encoder(Payload_Lift_Position position)
 {
-    std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition() 
-            << ", Target: " << -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR 
-            << ", Pos: " << position << std::endl;
+    std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition()
+              << ", Target: " << -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR
+              << ", Pos: " << position << std::endl;
 }
