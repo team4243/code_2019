@@ -64,6 +64,7 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
     FrontLeft_Leader.SetInverted(true);
     // FrontLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
     // FrontLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
+    // FrontLeft_Leader.ConfigClosedloopRamp(2);
 
     FrontLeft_Follower.SetInverted(true);
     FrontLeft_Follower.Follow(FrontLeft_Leader);

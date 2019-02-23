@@ -72,6 +72,9 @@ void Excelsior_End_Effector::Configure_End_Effector()
     Cargo_Roller_Leader.SetInverted(true);
     Cargo_Roller_Follower.SetInverted(false);
     Cargo_Roller_Follower.Follow(Cargo_Roller_Leader);
+
+    Camera_Tilt_Servo.SetPeriodMultiplier(frc::PWM::kPeriodMultiplier_4X); // 50Hz
+    // Camera_Tilt_Servo.SetPeriodMultiplier(frc::PWM::kPeriodMultiplier_1X); // 200Hz
 }
 
 /*************************************************************************************************/

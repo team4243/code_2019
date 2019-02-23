@@ -44,32 +44,32 @@
 #define CTRL_LIFT_POSITION_HIGH_HATCH (Driver_Two.GetRawButton(BUTTON_YELLOW) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
 
 // Lift logic -- Position Adjustment
-#define CTRL_LIFT_POSITION_STEP_UP (Driver_One.GetPOV() == 0)
-#define CTRL_LIFT_POSITION_STEP_DOWN (Driver_One.GetPOV() == 180)
+#define CTRL_LIFT_POSITION_STEP_UP (Driver_Two.GetPOV() == 0)
+#define CTRL_LIFT_POSITION_STEP_DOWN (Driver_Two.GetPOV() == 180)
 
 // Lift logic -- Manual
-#define CTRL_LIFT_UP_DOWN (-Driver_One.GetY())
-#define CTRL_LIFT_SWITCH_MANUAL (Driver_One.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
+#define CTRL_LIFT_UP_DOWN (-Driver_Two.GetY())
+#define CTRL_LIFT_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
 
 // Lift Encoder Zero logic
-#define CTRL_ALL_BUMPERS (Driver_One.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_One.GetRawButton(BUTTON_BUMPER_RIGHT))
-#define CTRL_ALL_TRIGGERS (Driver_One.GetRawAxis(AXIS_LEFT_TRIGGER) == 1 && Driver_One.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1)
-#define CTRL_ALL_MENUS (Driver_One.GetRawButton(BUTTON_BACK) && Driver_One.GetRawButton(BUTTON_START))
+#define CTRL_ALL_BUMPERS (Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
+#define CTRL_ALL_TRIGGERS (Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER) == 1 && Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1)
+#define CTRL_ALL_MENUS (Driver_Two.GetRawButton(BUTTON_BACK) && DriveDriver_Twor_One.GetRawButton(BUTTON_START))
 #define CTRL_LIFT_ENCODER_ZERO (CTRL_ALL_BUMPERS && CTRL_ALL_TRIGGERS && CTRL_ALL_MENUS)
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard Definitions -- End Effector ****/
 
-// Trigger logic for Cargo Roller and Hatch Flower
-#define LEFT_TRIGGER_VALUE (Driver_One.GetRawAxis(AXIS_LEFT_TRIGGER))
-#define RIGHT_TRIGGER_VALUE (Driver_One.GetRawAxis(AXIS_RIGHT_TRIGGER))
+// Trigger values for Cargo Roller and Hatch Flower
+#define LEFT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER))
+#define RIGHT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER))
 
 // Cargo Roller logic -- Velocity Mode
 #define CTRL_ROLL_IN (LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
 #define CTRL_ROLL_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
 
 // Cargo Roller logic -- MANUAL
-#define CTRL_ROLL_IN_OUT (-Driver_Two.GetY())
+#define CTRL_ROLL_IN_OUT (Driver_Two.GetX())`
 #define CTRL_ROLL_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
 
 // Hatch Flower logic
