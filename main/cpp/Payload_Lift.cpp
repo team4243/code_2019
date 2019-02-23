@@ -20,6 +20,9 @@
 // Scaling the Lift Position for AUTO driving
 #define PAYLOAD_LIFT_POSITION_SCALAR (512)
 
+// Speed in RPS (rotations per second) for MANUAL driving
+#define PAYLOAD_LIFT_SPEED (0.5) // 0 to 1
+
 // Cap the maximum output
 #define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.15)  // DOWN
 #define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.35) // UP
@@ -28,7 +31,7 @@
 #define CONVERT_TO_RPS_LIFT 1024
 
 /*************************************************************************************************/
-/**** Object Declarations and Global Variables ****/
+/**** Declarations ****/
 
 // Lift Positions by Encoded Rotations
 std::map<Payload_Lift_Position, int> Lift_Position{
@@ -46,9 +49,6 @@ std::map<Payload_Lift_Position, int> Lift_Position{
 WPI_TalonSRX Payload_Lift_Leader{PAYLOAD_LIFT_DEVICENUMBER_LEADER};
 WPI_TalonSRX Payload_Lift_Follower{PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER};
 
-// Keeping track of the current Lift position
-int targetPayloadHeight = -1;
-
 /*************************************************************************************************/
 /**** Configuration ****/
 
@@ -57,6 +57,7 @@ void Excelsior_Payload_Lift::Configure_Payload_Lift()
     // Set up encoder
     Payload_Lift_Leader.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, 0);
     Payload_Lift_Leader.SetSensorPhase(true);
+    Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);
 
     // Set rotation direction, clockwise == false
     Payload_Lift_Leader.SetInverted(false);
@@ -76,39 +77,27 @@ void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position)
 {
     // Tell motor drive to use encoder-feedback for a lift position
     Payload_Lift_Leader.Set(ControlMode::Position, -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR);
-
-    targetPayloadHeight = (int)position;
 }
 
-void Excelsior_Payload_Lift::Payload_Lift_Manual(double speed)
+void Excelsior_Payload_Lift::Payload_Lift_Manual(bool direction)
 {
-    Payload_Lift_Leader.Set(ControlMode::PercentOutput, speed);
+    if (direction)
+        Payload_Lift_Leader.Set(ControlMode::PercentOutput, -PAYLOAD_LIFT_SPEED);
+    else
+        Payload_Lift_Leader.Set(ControlMode::PercentOutput, PAYLOAD_LIFT_SPEED);
 }
 
-void Excelsior_Payload_Lift::Payload_Lift_Step(bool stepUp)
+void Excelsior_Payload_Lift::Stop()
 {
-    // Make sure we don't exceed maximum height
-    if (stepUp && targetPayloadHeight < Maximum_Height_Position)
-        targetPayloadHeight++;
-
-    // Make sure we don't exceed minimum height
-    else if (targetPayloadHeight > Ground_Position)
-        targetPayloadHeight--;
-
-    Payload_Lift_Action((Payload_Lift_Position)targetPayloadHeight);
-}
-
-void Excelsior_Payload_Lift::Zero_Encoder_Position()
-{
-    Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);
+    Payload_Lift_Leader.Set(ControlMode::Position, 0);
 }
 
 /*************************************************************************************************/
 /**** Helper Functions ****/
 
-void Excelsior_Payload_Lift::Print_Lift_Encoder()
+void Excelsior_Payload_Lift::Print_Lift_Encoder(Payload_Lift_Position position)
 {
     std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition()
-              << ", Target: " << -Lift_Position[(Payload_Lift_Position)targetPayloadHeight] * PAYLOAD_LIFT_POSITION_SCALAR
-              << ", Pos: " << (Payload_Lift_Position)targetPayloadHeight << std::endl;
+              << ", Target: " << -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR
+              << ", Pos: " << position << std::endl;
 }

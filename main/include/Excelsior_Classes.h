@@ -31,20 +31,17 @@ class Excelsior_Payload_Lift
 public:
   void Configure_Payload_Lift();
   void Payload_Lift_Action(Payload_Lift_Position);
-  void Payload_Lift_Manual(double);
-  void Payload_Lift_Step(bool);
-  void Zero_Encoder_Position();
-  void Print_Lift_Encoder();
+  void Payload_Lift_Manual(bool);
+  void Print_Lift_Encoder(Payload_Lift_Position);
+  void Stop();
 };
 
 class Excelsior_End_Effector
 {
 public:
   void Configure_End_Effector();
-  void Cargo_Roller_Action(bool, double);
-  void Cargo_Roller_Manual(double);
+  void Cargo_Roller_Action(bool, double, bool);
   void Hatch_Flower_Action(bool);
-  void Camera_Tilt_Action(bool);
   void Print_Roller_Encoders();
 };
 

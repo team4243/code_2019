@@ -40,7 +40,7 @@
 #define OMNI_DRIVE_PEAK_OUTPUT_REV (-0.35)
 
 /*************************************************************************************************/
-/**** Object Declarations and Global Variables ****/
+/**** Declarations ****/
 
 // Omni Drive -- Motor Drivers
 WPI_TalonSRX FrontLeft_Leader{DEVICENUMBER_FRONTLEFT_LEADER};
