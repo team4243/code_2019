@@ -10,11 +10,38 @@
 
 #include <iostream>
 
+/**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 /*************************************************************************************************/
-/**** Definitions ****/
+/**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 
 // Enable Cargo Limit Switch
 #define ENABLE_LIMIT_SWITCH_CARGO (false)
+
+// Cargo Roller speed as Rotations Per Second (RPS) of output shaft, the setpoint of the PID controller
+#define CARGO_ROLLER_SPEED_RPS (1.0)
+
+// TalonSRX Configuration -- ENABLE
+#define ROLLERS_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
+
+// TalonSRX Configuration -- SET Values
+#define ROLLERS_PEAK_OUTPUT_FWD (0.75) // In or out?
+#define ROLLERS_PEAK_OUTPUT_REV (-0.35)
+#define ROLLERS_PROPORTIONAL_CTRL (0.35)
+#define ROLLERS_DERIVATIVE_CTRL (0.035)
+#define ROLLERS_FEED_FWD_CTRL (0)
+#define ROLLERS_RAMP_TIME (2) // Seconds to get from neutral (0) and full speed (peak output)
+#define ROLLERS_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
+
+// Hatch Flower MAX/MIN values, 0->1
+#define HATCH_FLOWER_MAX (0.8)
+#define HATCH_FLOWER_MIN (0.25)
+
+// Camera Tilt MAX/MIN values, 0->1
+#define CAMERA_TILT_MAX (0.7)
+#define CAMERA_TILT_MIN (0.2)
+
+/*************************************************************************************************/
+/**** Definitions ****/
 
 // Rollers CAN device numbers
 #define CARGO_ROLLER_DEVICENUMBER_LEADER (24)
@@ -29,23 +56,9 @@
 // End Effector Limit Switch -- DigitalIO Channel
 #define LIMIT_SWITCH_CHANNEL (2)
 
-// Speed as Rotations Per Second (RPS)
-#define CARGO_ROLLER_SPEED_RPS (1.0)
-
-// Converting to RPS for ToughBox output
+// Converting to RPS for ToughBox output..
+// .. and the bag motors will be different, but we can just leave this alone and tune the SPEED_RPS variable
 #define CONVERT_TO_RPS_EE (1024)
-
-// Cap the maximum output
-#define ROLLERS_PEAK_OUTPUT_FWD (0.35)
-#define ROLLERS_PEAK_OUTPUT_REV (-0.35)
-
-// Hatch Flower MAX/MIN values
-#define HATCH_FLOWER_MAX (0.8)
-#define HATCH_FLOWER_MIN (0.25)
-
-// Camera Tilt MAX/MIN values
-#define CAMERA_TILT_MAX (0.7)
-#define CAMERA_TILT_MIN (0.2)
 
 /*************************************************************************************************/
 /**** Object Declarations and Global Variables ****/
@@ -70,11 +83,17 @@ void Excelsior_End_Effector::Configure_End_Effector()
 {
     // Set rotation direction, clockwise == false
     Cargo_Roller_Leader.SetInverted(true);
+    Cargo_Roller_Leader.ConfigPeakOutputForward(ROLLERS_PEAK_OUTPUT_FWD);
+    Cargo_Roller_Leader.ConfigPeakOutputReverse(ROLLERS_PEAK_OUTPUT_REV);
+    Cargo_Roller_Leader.ConfigClosedloopRamp(ROLLERS_RAMP_TIME);
+    Cargo_Roller_Leader.Config_kP(ROLLERS_SLOT_IDX, ROLLERS_PROPORTIONAL_CTRL);
+    Cargo_Roller_Leader.Config_kD(ROLLERS_SLOT_IDX, ROLLERS_DERIVATIVE_CTRL);
+    Cargo_Roller_Leader.Config_kF(ROLLERS_SLOT_IDX, ROLLERS_FEED_FWD_CTRL);
+
     Cargo_Roller_Follower.SetInverted(false);
     Cargo_Roller_Follower.Follow(Cargo_Roller_Leader);
 
-    Camera_Tilt_Servo.SetPeriodMultiplier(frc::PWM::kPeriodMultiplier_4X); // 50Hz
-    // Camera_Tilt_Servo.SetPeriodMultiplier(frc::PWM::kPeriodMultiplier_1X); // 200Hz
+    Camera_Tilt_Servo.SetPeriodMultiplier(frc::PWM::kPeriodMultiplier_4X); // _4X == 50Hz, _2X == 100Hz, _1X == 200Hz
 }
 
 /*************************************************************************************************/

@@ -9,12 +9,34 @@
 
 #include <iostream>
 #include <Math.h>
+#include <list>
+
+/**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
+/*************************************************************************************************/
+/**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
+
+// Robot speed as Rotations Per Second (RPS) of output shaft, the setpoint of the PID controller
+#define OMNI_DRIVE_SPEED_RPS (10.0) // MAX is 125
+
+// TalonSRX Configuration -- ENABLE
+#define OMNI_DRIVE_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
+
+// TalonSRX Configuration -- SET Values
+#define OMNI_DRIVE_PEAK_OUTPUT (0.35) // Maximum output speed 0->1
+#define OMNI_DRIVE_PROPORTIONAL_CTRL (0.35)
+#define OMNI_DRIVE_DERIVATIVE_CTRL (0.035)
+#define OMNI_DRIVE_FEED_FWD_CTRL (0)
+#define OMNI_DRIVE_RAMP_TIME (2) // Seconds to get from neutral (0) and full speed (peak output)
+#define OMNI_DRIVE_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
+
+// Deadband value for rejecting small movements of Joystick accidently by operator
+#define OMNI_DRIVE_DEADBAND_VALUE (0.12)
 
 /*************************************************************************************************/
 /**** Definitions ****/
 
 // Omni Drive -- CAN device numbers
-#define DEVICENUMBER_FRONTLEFT_LEADER (11) // yes, 11 not 1
+#define DEVICENUMBER_FRONTLEFT_LEADER (11) // yes, 11 not 1 since PDP only likes channel 1
 #define DEVICENUMBER_FRONTLEFT_FOLLOWER (2)
 
 #define DEVICENUMBER_REARLEFT_LEADER (3)
@@ -26,18 +48,9 @@
 #define DEVICENUMBER_REARRIGHT_LEADER (7)
 #define DEVICENUMBER_REARRIGHT_FOLLOWER (8)
 
-// Speed as Rotations Per Second (RPS)
-#define OMNI_DRIVE_SPEED_RPS (10.0) // MAX is 125
-
-// Deadband for rejecting small movements of Joystick
-#define OMNI_DRIVE_DEADBAND_VALUE (0.12)
-
-// Converting to RPS for ToughBox output
+// Converting to RPS for ToughBox output..
+// .. and the omni boxes will be different, but we can just leave this alone and tune the SPEED_RPS variable
 #define CONVERT_TO_RPS_DRIVE (1024)
-
-// Cap the maximum output
-#define OMNI_DRIVE_PEAK_OUTPUT_FWD (0.35) // Actually forward?
-#define OMNI_DRIVE_PEAK_OUTPUT_REV (-0.35)
 
 /*************************************************************************************************/
 /**** Object Declarations and Global Variables ****/
@@ -62,41 +75,48 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
 {
     // Set rotation directions (clockwise == false) and set follower to leaders
     FrontLeft_Leader.SetInverted(true);
-    // FrontLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
-    // FrontLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
-    // FrontLeft_Leader.ConfigClosedloopRamp(2);
+    FrontLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    FrontLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+    FrontLeft_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
+    FrontLeft_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
+    FrontLeft_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
+    FrontLeft_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
 
     FrontLeft_Follower.SetInverted(true);
     FrontLeft_Follower.Follow(FrontLeft_Leader);
-    // FrontLeft_Follower.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
-    // FrontLeft_Follower.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
 
     RearLeft_Leader.SetInverted(true);
-    // RearLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
-    // RearLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
+    RearLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    RearLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+    RearLeft_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
+    RearLeft_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
+    RearLeft_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
+    RearLeft_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
 
     RearLeft_Follower.SetInverted(true);
     RearLeft_Follower.Follow(RearLeft_Leader);
-    // RearLeft_Follower.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
-    // RearLeft_Follower.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
 
     FrontRight_Leader.SetInverted(true);
-    // FrontRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
-    // FrontRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
+    FrontRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    FrontRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+    FrontRight_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
+    FrontRight_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
+    FrontRight_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
+    FrontRight_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
 
     FrontRight_Follower.SetInverted(true);
     FrontRight_Follower.Follow(FrontRight_Leader);
-    // FrontRight_Follower.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
-    // FrontRight_Follower.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
 
     RearRight_Leader.SetInverted(true);
-    // RearRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
-    // RearRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
+    RearRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+    RearRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+    RearRight_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
+    RearRight_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
+    RearRight_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
+    RearRight_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
 
     RearRight_Follower.SetInverted(true);
     RearRight_Follower.Follow(RearRight_Leader);
-    // RearRight_Follower.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
-    // RearRight_Follower.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
 }
 
 /*************************************************************************************************/
@@ -107,6 +127,7 @@ void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, dou
     // Deadband for joystick
     if (x_value < OMNI_DRIVE_DEADBAND_VALUE && x_value > -OMNI_DRIVE_DEADBAND_VALUE)
         x_value = 0;
+
     if (y_value < OMNI_DRIVE_DEADBAND_VALUE && y_value > -OMNI_DRIVE_DEADBAND_VALUE)
         y_value = 0;
 
@@ -120,23 +141,23 @@ void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, dou
     double speed_rearLeft = scalar * sin(direction) + rotation;
     double speed_rearRight = scalar * cos(direction) - rotation;
 
-    // if(!manual)
-    // {
-    //     // Drive motors at actual speed (calculated speed scaled by MAX rotations per second)
-    //     FrontLeft_Leader.Set(ControlMode::Velocity, speed_frontLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
-    //     FrontRight_Leader.Set(ControlMode::Velocity, -speed_frontRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
-    //     RearLeft_Leader.Set(ControlMode::Velocity, speed_rearLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
-    //     RearRight_Leader.Set(ControlMode::Velocity, -speed_rearRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
-    // }
+    if (!manual)
+    {
+        // Drive motors at actual speed (calculated speed scaled by MAX rotations per second)
+        FrontLeft_Leader.Set(ControlMode::Velocity, speed_frontLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
+        FrontRight_Leader.Set(ControlMode::Velocity, -speed_frontRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
+        RearLeft_Leader.Set(ControlMode::Velocity, speed_rearLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
+        RearRight_Leader.Set(ControlMode::Velocity, -speed_rearRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
+    }
 
-    // else
-    // {
-    // Manual driving
-    FrontLeft_Leader.Set(ControlMode::PercentOutput, speed_frontLeft);
-    FrontRight_Leader.Set(ControlMode::PercentOutput, -speed_frontRight);
-    RearLeft_Leader.Set(ControlMode::PercentOutput, speed_rearLeft);
-    RearRight_Leader.Set(ControlMode::PercentOutput, -speed_rearRight);
-    // }
+    else
+    {
+        // Manual driving
+        FrontLeft_Leader.Set(ControlMode::PercentOutput, speed_frontLeft);
+        FrontRight_Leader.Set(ControlMode::PercentOutput, -speed_frontRight);
+        RearLeft_Leader.Set(ControlMode::PercentOutput, speed_rearLeft);
+        RearRight_Leader.Set(ControlMode::PercentOutput, -speed_rearRight);
+    }
 }
 
 /*************************************************************************************************/
@@ -148,6 +169,5 @@ void Excelsior_Omni_Drive::Print_Omni_Encoders()
     std::cout << "Omni FR: " << FrontRight_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
     std::cout << "Omni RL: " << RearLeft_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
     std::cout << "Omni RR: " << RearRight_Leader.GetSensorCollection().GetQuadraturePosition() << std::endl;
-    std::cout << std::endl
-              << std::endl;
+    std::cout << std::endl;
 }

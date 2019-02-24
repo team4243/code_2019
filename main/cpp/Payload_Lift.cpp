@@ -10,6 +10,22 @@
 #include <iostream>
 #include <map>
 
+/**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
+/*************************************************************************************************/
+/**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
+
+// TalonSRX Configuration -- ENABLE
+#define PAYLOAD_LIFT_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
+
+// TalonSRX Configuration -- SET Values
+#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.15)  // DOWN
+#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.35) // UP
+#define PAYLOAD_LIFT_PROPORTIONAL_CTRL (0.35)
+#define PAYLOAD_LIFT_DERIVATIVE_CTRL (0.035)
+#define PAYLOAD_LIFT_FEED_FWD_CTRL (0)
+#define PAYLOAD_LIFT_RAMP_TIME (2) // Seconds to get from neutral (0) and full speed (peak output)
+#define PAYLOAD_LIFT_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
+
 /*************************************************************************************************/
 /**** Definitions ****/
 
@@ -19,13 +35,6 @@
 
 // Scaling the Lift Position for AUTO driving
 #define PAYLOAD_LIFT_POSITION_SCALAR (512)
-
-// Cap the maximum output
-#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.15)  // DOWN
-#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.35) // UP
-
-// Converting to RPS for ToughBox output
-#define CONVERT_TO_RPS_LIFT 1024
 
 /*************************************************************************************************/
 /**** Object Declarations and Global Variables ****/
@@ -60,13 +69,15 @@ void Excelsior_Payload_Lift::Configure_Payload_Lift()
 
     // Set rotation direction, clockwise == false
     Payload_Lift_Leader.SetInverted(false);
-    // Payload_Lift_Leader.ConfigPeakOutputForward(PAYLOAD_LIFT_PEAK_OUTPUT_FWD);
-    // Payload_Lift_Leader.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);
+    Payload_Lift_Leader.ConfigPeakOutputForward(PAYLOAD_LIFT_PEAK_OUTPUT_FWD);
+    Payload_Lift_Leader.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);
+    Payload_Lift_Leader.ConfigClosedloopRamp(PAYLOAD_LIFT_RAMP_TIME);
+    Payload_Lift_Leader.Config_kP(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_PROPORTIONAL_CTRL);
+    Payload_Lift_Leader.Config_kD(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_DERIVATIVE_CTRL);
+    Payload_Lift_Leader.Config_kF(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_FEED_FWD_CTRL);
 
     Payload_Lift_Follower.SetInverted(false);
     Payload_Lift_Follower.Follow(Payload_Lift_Leader);
-    // Payload_Lift_Follower.ConfigPeakOutputForward(PAYLOAD_LIFT_PEAK_OUTPUT_FWD);
-    // Payload_Lift_Follower.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);
 }
 
 /*************************************************************************************************/
@@ -82,6 +93,7 @@ void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position)
 
 void Excelsior_Payload_Lift::Payload_Lift_Manual(double speed)
 {
+    // Manual lifting
     Payload_Lift_Leader.Set(ControlMode::PercentOutput, speed);
 }
 

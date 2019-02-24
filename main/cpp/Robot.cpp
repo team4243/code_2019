@@ -18,20 +18,21 @@
 // Print encoder values for any ENABLED mechanisms
 #define PRINT_ENCODER_VALUES (true)
 
-// Deadband for Triggers
+// Deadband for Gamepad Triggers
 #define DEADBAND_TRIGGER (0.12)
 
 /*************************************************************************************************/
-/**** Control Logic Switchboard Definitions -- Omni Drive ****/
+/**** Control Logic Switchboard -- Omni Drive ****/
 
-// Drive logic -- These are pass directly into the Omni Drive Action
+// Drive logic -- These are passed directly into the Omni Drive Action..
+// .. unlike the other definitions below that are used as conditionals for if statements
 #define CTRL_DRIVE_LEFT_RIGHT (Driver_One.GetX())
 #define CTRL_DRIVE_FWD_BWD (-Driver_One.GetY())
 #define CTRL_DRIVE_ROTATE (Driver_One.GetRawAxis(AXIS_RIGHT_X))
 #define CTRL_DRIVE_SWITCH_MANUAL (Driver_One.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_One.GetRawButton(BUTTON_BUMPER_RIGHT))
 
 /*************************************************************************************************/
-/**** Control Logic Switchboard Definitions -- Payload Lift ****/
+/**** Control Logic Switchboard -- Payload Lift ****/
 
 // Lift logic -- Position Mode -- Cargo
 #define CTRL_LIFT_POSITION_LOW_CARGO (Driver_Two.GetRawButton(BUTTON_GREEN) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
@@ -51,14 +52,14 @@
 #define CTRL_LIFT_UP_DOWN (-Driver_Two.GetY())
 #define CTRL_LIFT_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
 
-// Lift Encoder Zero logic
+// Lift logic -- Encoder Zeroing for initial calibration
 #define CTRL_ALL_BUMPERS (Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
 #define CTRL_ALL_TRIGGERS (Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER) == 1 && Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1)
-#define CTRL_ALL_MENUS (Driver_Two.GetRawButton(BUTTON_BACK) && DriveDriver_Twor_One.GetRawButton(BUTTON_START))
+#define CTRL_ALL_MENUS (Driver_Two.GetRawButton(BUTTON_BACK) && Driver_Two.GetRawButton(BUTTON_START))
 #define CTRL_LIFT_ENCODER_ZERO (CTRL_ALL_BUMPERS && CTRL_ALL_TRIGGERS && CTRL_ALL_MENUS)
 
 /*************************************************************************************************/
-/**** Control Logic Switchboard Definitions -- End Effector ****/
+/**** Control Logic Switchboard -- End Effector ****/
 
 // Trigger values for Cargo Roller and Hatch Flower
 #define LEFT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER))
@@ -69,7 +70,7 @@
 #define CTRL_ROLL_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
 
 // Cargo Roller logic -- MANUAL
-#define CTRL_ROLL_IN_OUT (Driver_Two.GetX())`
+#define CTRL_ROLL_IN_OUT (Driver_Two.GetX())
 #define CTRL_ROLL_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
 
 // Hatch Flower logic
@@ -88,14 +89,14 @@ Excelsior_Omni_Drive Omni_Drive;
 Excelsior_Payload_Lift Payload_Lift;
 Excelsior_End_Effector End_Effector;
 
-// Joystick -- Controllers
+// Joystick Controllers, in this case we use Gamepad's instead of traditional joysticks
 frc::Joystick Driver_One{DRIVER_ONE_CHANNEL};
 frc::Joystick Driver_Two{DRIVER_TWO_CHANNEL};
 
-// Operator must press and release POV for Payload Lift position changes
+// Operator must press and release button for Payload Lift position changes
 bool pressedLastFrame_autoLift = false;
 
-// Operator must release manual lift driving button to stop motion
+// Operator must release manual lift action button to stop motion after press-n-hold action
 bool pressedLastFrame_manualLift = false;
 
 /*************************************************************************************************/
@@ -103,10 +104,10 @@ bool pressedLastFrame_manualLift = false;
 
 void Robot::TeleopPeriodic()
 {
-    /************* OMNI DRIVETRAIN LOGIC ***************/
+    /************* OMNI DRIVE LOGIC ***************/
     if (ENABLE_OMNI_DRIVE)
     {
-        // Drive robot using GamePad -- Left Joystick for translation, Right Joystick X for rotation
+        // Drive robot
         Omni_Drive.Omni_Drive_Action(CTRL_DRIVE_LEFT_RIGHT, CTRL_DRIVE_FWD_BWD, CTRL_DRIVE_ROTATE, CTRL_DRIVE_SWITCH_MANUAL);
 
         // Print raw encoder values
@@ -114,7 +115,7 @@ void Robot::TeleopPeriodic()
             Omni_Drive.Print_Omni_Encoders();
     }
 
-    /************* PAYLOAD LIFT ARM LOGIC ***************/
+    /************* PAYLOAD LIFT LOGIC ***************/
     if (ENABLE_PAYLOAD_LIFT)
     {
         // Zero out the Lift Arm

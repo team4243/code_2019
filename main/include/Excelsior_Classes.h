@@ -1,14 +1,24 @@
+#pragma once
+
 #ifndef _H_
 #define _H_
+
+/*************************************************************************************************/
+/**** Omni Drive Class Declaration ****/
 
 class Excelsior_Omni_Drive
 {
 public:
   void Configure_Omni_Drive();
-  void Omni_Drive_Action(double, double, double, bool);
+  void Omni_Drive_Action(double x_value, double y_value, double rotation, bool manual);
   void Print_Omni_Encoders();
 };
 
+/*************************************************************************************************/
+/**** Payload Lift Enum Declaration ****/
+
+// Enumerables inherit integers by default..
+// .. starting at 0 and incrementing by 1 in the order shown here
 enum Payload_Lift_Position
 {
   Ground_Position,
@@ -26,16 +36,22 @@ enum Payload_Lift_Position
   Maximum_Height_Position
 };
 
+/*************************************************************************************************/
+/**** Payload Lift Class Declaration ****/
+
 class Excelsior_Payload_Lift
 {
 public:
   void Configure_Payload_Lift();
   void Payload_Lift_Action(Payload_Lift_Position);
-  void Payload_Lift_Manual(double);
-  void Payload_Lift_Step(bool);
+  void Payload_Lift_Manual(double speed);
+  void Payload_Lift_Step(bool stepUp);
   void Zero_Encoder_Position();
   void Print_Lift_Encoder();
 };
+
+/*************************************************************************************************/
+/**** End Effector Class Declaration ****/
 
 class Excelsior_End_Effector
 {
