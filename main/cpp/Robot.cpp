@@ -7,8 +7,9 @@
 #include "Excelsior_Classes.h"
 #include <iostream>
 
+/**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 /*************************************************************************************************/
-/**** Enabling and Misc Definitions ****/
+/**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 
 // Enabling Bits
 #define ENABLE_OMNI_DRIVE (false)
@@ -24,8 +25,7 @@
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- Omni Drive ****/
 
-// Drive logic -- These are passed directly into the Omni Drive Action..
-// .. unlike the other definitions below that are used as conditionals for if statements
+// Drive logic -- Velocity Mode and Manual
 #define CTRL_DRIVE_LEFT_RIGHT (Driver_One.GetX())
 #define CTRL_DRIVE_FWD_BWD (-Driver_One.GetY())
 #define CTRL_DRIVE_ROTATE (Driver_One.GetRawAxis(AXIS_RIGHT_X))
@@ -213,7 +213,7 @@ void Robot::TeleopPeriodic()
             End_Effector.Hatch_Flower_Action(false);
 
         // Camera Tilt
-        else if (CTRL_CAMERA_UP)
+        if (CTRL_CAMERA_UP)
             End_Effector.Camera_Tilt_Action(true);
 
         else if (CTRL_CAMERA_DOWN)

@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <Math.h>
-#include <list>
 
 /**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 /*************************************************************************************************/
@@ -75,45 +74,57 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
 {
     // Set rotation directions (clockwise == false) and set follower to leaders
     FrontLeft_Leader.SetInverted(true);
-    FrontLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
-    FrontLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
-    FrontLeft_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
-    FrontLeft_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
-    FrontLeft_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
-    FrontLeft_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
+    if (OMNI_DRIVE_WRITE_CONFIGURATION)
+    {
+        FrontLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+        FrontLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+        FrontLeft_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
+        FrontLeft_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
+        FrontLeft_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
+        FrontLeft_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
+    }
 
     FrontLeft_Follower.SetInverted(true);
     FrontLeft_Follower.Follow(FrontLeft_Leader);
 
     RearLeft_Leader.SetInverted(true);
-    RearLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
-    RearLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
-    RearLeft_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
-    RearLeft_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
-    RearLeft_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
-    RearLeft_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
+    if (OMNI_DRIVE_WRITE_CONFIGURATION)
+    {
+        RearLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+        RearLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+        RearLeft_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
+        RearLeft_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
+        RearLeft_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
+        RearLeft_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
+    }
 
     RearLeft_Follower.SetInverted(true);
     RearLeft_Follower.Follow(RearLeft_Leader);
 
     FrontRight_Leader.SetInverted(true);
-    FrontRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
-    FrontRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
-    FrontRight_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
-    FrontRight_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
-    FrontRight_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
-    FrontRight_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
+    if (OMNI_DRIVE_WRITE_CONFIGURATION)
+    {
+        FrontRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+        FrontRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+        FrontRight_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
+        FrontRight_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
+        FrontRight_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
+        FrontRight_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
+    }
 
     FrontRight_Follower.SetInverted(true);
     FrontRight_Follower.Follow(FrontRight_Leader);
 
     RearRight_Leader.SetInverted(true);
-    RearRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
-    RearRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
-    RearRight_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
-    RearRight_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
-    RearRight_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
-    RearRight_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
+    if (OMNI_DRIVE_WRITE_CONFIGURATION)
+    {
+        RearRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
+        RearRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+        RearRight_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
+        RearRight_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
+        RearRight_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
+        RearRight_Leader.Config_kF(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_FEED_FWD_CTRL);
+    }
 
     RearRight_Follower.SetInverted(true);
     RearRight_Follower.Follow(RearRight_Leader);

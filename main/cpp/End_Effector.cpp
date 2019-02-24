@@ -83,12 +83,15 @@ void Excelsior_End_Effector::Configure_End_Effector()
 {
     // Set rotation direction, clockwise == false
     Cargo_Roller_Leader.SetInverted(true);
-    Cargo_Roller_Leader.ConfigPeakOutputForward(ROLLERS_PEAK_OUTPUT_FWD);
-    Cargo_Roller_Leader.ConfigPeakOutputReverse(ROLLERS_PEAK_OUTPUT_REV);
-    Cargo_Roller_Leader.ConfigClosedloopRamp(ROLLERS_RAMP_TIME);
-    Cargo_Roller_Leader.Config_kP(ROLLERS_SLOT_IDX, ROLLERS_PROPORTIONAL_CTRL);
-    Cargo_Roller_Leader.Config_kD(ROLLERS_SLOT_IDX, ROLLERS_DERIVATIVE_CTRL);
-    Cargo_Roller_Leader.Config_kF(ROLLERS_SLOT_IDX, ROLLERS_FEED_FWD_CTRL);
+    if (ROLLERS_WRITE_CONFIGURATION)
+    {
+        Cargo_Roller_Leader.ConfigPeakOutputForward(ROLLERS_PEAK_OUTPUT_FWD);
+        Cargo_Roller_Leader.ConfigPeakOutputReverse(ROLLERS_PEAK_OUTPUT_REV);
+        Cargo_Roller_Leader.ConfigClosedloopRamp(ROLLERS_RAMP_TIME);
+        Cargo_Roller_Leader.Config_kP(ROLLERS_SLOT_IDX, ROLLERS_PROPORTIONAL_CTRL);
+        Cargo_Roller_Leader.Config_kD(ROLLERS_SLOT_IDX, ROLLERS_DERIVATIVE_CTRL);
+        Cargo_Roller_Leader.Config_kF(ROLLERS_SLOT_IDX, ROLLERS_FEED_FWD_CTRL);
+    }
 
     Cargo_Roller_Follower.SetInverted(false);
     Cargo_Roller_Follower.Follow(Cargo_Roller_Leader);

@@ -69,12 +69,15 @@ void Excelsior_Payload_Lift::Configure_Payload_Lift()
 
     // Set rotation direction, clockwise == false
     Payload_Lift_Leader.SetInverted(false);
-    Payload_Lift_Leader.ConfigPeakOutputForward(PAYLOAD_LIFT_PEAK_OUTPUT_FWD);
-    Payload_Lift_Leader.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);
-    Payload_Lift_Leader.ConfigClosedloopRamp(PAYLOAD_LIFT_RAMP_TIME);
-    Payload_Lift_Leader.Config_kP(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_PROPORTIONAL_CTRL);
-    Payload_Lift_Leader.Config_kD(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_DERIVATIVE_CTRL);
-    Payload_Lift_Leader.Config_kF(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_FEED_FWD_CTRL);
+    if (PAYLOAD_LIFT_WRITE_CONFIGURATION)
+    {
+        Payload_Lift_Leader.ConfigPeakOutputForward(PAYLOAD_LIFT_PEAK_OUTPUT_FWD);
+        Payload_Lift_Leader.ConfigPeakOutputReverse(PAYLOAD_LIFT_PEAK_OUTPUT_REV);
+        Payload_Lift_Leader.ConfigClosedloopRamp(PAYLOAD_LIFT_RAMP_TIME);
+        Payload_Lift_Leader.Config_kP(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_PROPORTIONAL_CTRL);
+        Payload_Lift_Leader.Config_kD(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_DERIVATIVE_CTRL);
+        Payload_Lift_Leader.Config_kF(PAYLOAD_LIFT_SLOT_IDX, PAYLOAD_LIFT_FEED_FWD_CTRL);
+    }
 
     Payload_Lift_Follower.SetInverted(false);
     Payload_Lift_Follower.Follow(Payload_Lift_Leader);
