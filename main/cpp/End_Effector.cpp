@@ -33,8 +33,10 @@
 #define ROLLERS_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
 
 // Hatch Flower MAX/MIN values, 0->1
-#define HATCH_FLOWER_MAX (0.8)
-#define HATCH_FLOWER_MIN (0.25)
+//#define HATCH_FLOWER_MAX (0.8)
+//#define HATCH_FLOWER_MIN (0.25)
+#define HATCH_FLOWER_MAX (1.0)
+#define HATCH_FLOWER_MIN (0.1)
 
 // Camera Tilt MAX/MIN values, 0->1
 #define CAMERA_TILT_MAX (0.7)
@@ -96,6 +98,7 @@ void Excelsior_End_Effector::Configure_End_Effector()
     Cargo_Roller_Follower.SetInverted(false);
     Cargo_Roller_Follower.Follow(Cargo_Roller_Leader);
 
+    Hatch_Flower_Servo.SetPeriodMultiplier(frc::PWM::kPeriodMultiplier_2X);
     Camera_Tilt_Servo.SetPeriodMultiplier(frc::PWM::kPeriodMultiplier_4X); // _4X == 50Hz, _2X == 100Hz, _1X == 200Hz
 }
 

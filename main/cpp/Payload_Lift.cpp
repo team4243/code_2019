@@ -103,11 +103,11 @@ void Excelsior_Payload_Lift::Payload_Lift_Manual(double speed)
 void Excelsior_Payload_Lift::Payload_Lift_Step(bool stepUp)
 {
     // Make sure we don't exceed maximum height
-    if (stepUp && targetPayloadHeight < Maximum_Height_Position)
+    if (stepUp && (targetPayloadHeight < Maximum_Height_Position))
         targetPayloadHeight++;
 
     // Make sure we don't exceed minimum height
-    else if (targetPayloadHeight > Ground_Position)
+    else if (!stepUp && (targetPayloadHeight > Ground_Position))
         targetPayloadHeight--;
 
     Payload_Lift_Action((Payload_Lift_Position)targetPayloadHeight);
