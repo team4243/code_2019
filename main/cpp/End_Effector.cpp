@@ -26,15 +26,13 @@
 // TalonSRX Configuration -- SET Values
 #define ROLLERS_PEAK_OUTPUT_FWD (0.75) // In or out?
 #define ROLLERS_PEAK_OUTPUT_REV (-0.35)
-#define ROLLERS_PROPORTIONAL_CTRL (0.35)
-#define ROLLERS_DERIVATIVE_CTRL (0.035)
+#define ROLLERS_PROPORTIONAL_CTRL (0.1)
+#define ROLLERS_DERIVATIVE_CTRL (0.01)
 #define ROLLERS_FEED_FWD_CTRL (0)
-#define ROLLERS_RAMP_TIME (2) // Seconds to get from neutral (0) and full speed (peak output)
+#define ROLLERS_RAMP_TIME (0) // Seconds to get from neutral to full speed (peak output)
 #define ROLLERS_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
 
 // Hatch Flower MAX/MIN values, 0->1
-//#define HATCH_FLOWER_MAX (0.8)
-//#define HATCH_FLOWER_MIN (0.25)
 #define HATCH_FLOWER_MAX (1.0)
 #define HATCH_FLOWER_MIN (0.1)
 

@@ -6,10 +6,6 @@
 /*************************************************************************************************/
 /**** Gamepad Joystick Definitions for Buttons and Axis' ****/
 
-// Joystick COM channels
-#define DRIVER_ONE_CHANNEL (0)
-#define DRIVER_TWO_CHANNEL (1)
-
 // Joystick Buttons
 #define BUTTON_GREEN (1)
 #define BUTTON_RED (2)

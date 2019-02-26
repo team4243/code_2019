@@ -11,6 +11,10 @@
 /*************************************************************************************************/
 /**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 
+// Joystick COM channels
+#define DRIVER_ONE_CHANNEL (0) // SWAP THESE CHANNELS IF TESTING JUST DRIVER TWO CONTROLS!
+#define DRIVER_TWO_CHANNEL (1) // SWAP THESE CHANNELS IF TESTING JUST DRIVER TWO CONTROLS!
+
 // Enabling Bits
 #define ENABLE_OMNI_DRIVE (false)
 #define ENABLE_PAYLOAD_LIFT (false)
@@ -62,26 +66,20 @@
 /**** Control Logic Switchboard -- End Effector ****/
 
 // Trigger values for Cargo Roller and Hatch Flower
-// #define LEFT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER))
-// #define RIGHT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER))
-#define LEFT_TRIGGER_VALUE (Driver_One.GetRawAxis(AXIS_LEFT_TRIGGER))
-#define RIGHT_TRIGGER_VALUE (Driver_One.GetRawAxis(AXIS_RIGHT_TRIGGER))
+#define LEFT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER))
+#define RIGHT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER))
 
 // Cargo Roller logic -- Velocity Mode
-// #define CTRL_ROLL_IN (LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
-// #define CTRL_ROLL_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
-#define CTRL_ROLL_IN (LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_One.GetRawButton(BUTTON_BUMPER_LEFT))
-#define CTRL_ROLL_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_One.GetRawButton(BUTTON_BUMPER_LEFT))
+#define CTRL_ROLL_IN (LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
+#define CTRL_ROLL_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
 
 // Cargo Roller logic -- MANUAL
-// #define CTRL_ROLL_IN_OUT (Driver_Two.GetX())
-// #define CTRL_ROLL_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
-#define CTRL_ROLL_IN_OUT (Driver_One.GetX())
-#define CTRL_ROLL_SWITCH_MANUAL (Driver_One.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
+#define CTRL_ROLL_IN_OUT (Driver_Two.GetX())
+#define CTRL_ROLL_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
 
 // Hatch Flower logic
-#define CTRL_HATCH_IN (LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) // && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
-#define CTRL_HATCH_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) // && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
+#define CTRL_HATCH_IN (LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
+#define CTRL_HATCH_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
 
 // Camera Tilt logic
 #define CTRL_CAMERA_UP ((Driver_One.GetRawAxis(AXIS_LEFT_TRIGGER) == 1) || Driver_Two.GetRawButton(BUTTON_YELLOW))
@@ -104,6 +102,9 @@ bool pressedLastFrame_autoLift = false;
 
 // Operator must release manual lift action button to stop motion after press-n-hold action
 bool pressedLastFrame_manualLift = false;
+
+// Operator must release manual roller action button to stop motion after press-n-hold action
+bool pressedLastFrame_cargoRollers = false;
 
 /*************************************************************************************************/
 /**** Teleop Periodic ****/
@@ -201,11 +202,22 @@ void Robot::TeleopPeriodic()
     /************* END EFFECTOR LOGIC ***************/
     if (ENABLE_END_EFFECTOR)
     {
-        // Cargo Rollers
+        // Cargo Rollers -- Manual Control
         if (CTRL_ROLL_SWITCH_MANUAL)
+        {
+            pressedLastFrame_cargoRollers = true;
             End_Effector.Cargo_Roller_Manual(CTRL_ROLL_IN_OUT);
+        }
 
-        else if (CTRL_ROLL_IN) // ADD LOGIC FOR PRESSED LAST FRAME -- ROLLERS DONT STOP ON MANUAL DRIVE!!!!
+        // Check if the Manual Cargo Roller switch has been released
+        else if (!CTRL_ROLL_SWITCH_MANUAL && pressedLastFrame_cargoRollers)
+        {
+            pressedLastFrame_cargoRollers = false;
+            End_Effector.Cargo_Roller_Manual(0);
+        }
+
+        // Cargo Rollers -- Velocity Control
+        else if (CTRL_ROLL_IN)
             End_Effector.Cargo_Roller_Action(true, LEFT_TRIGGER_VALUE);
 
         else if (CTRL_ROLL_OUT)

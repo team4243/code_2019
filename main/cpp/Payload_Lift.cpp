@@ -18,12 +18,12 @@
 #define PAYLOAD_LIFT_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
 
 // TalonSRX Configuration -- SET Values
-#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.15)  // DOWN
-#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.35) // UP
-#define PAYLOAD_LIFT_PROPORTIONAL_CTRL (0.35)
-#define PAYLOAD_LIFT_DERIVATIVE_CTRL (0.035)
+#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.05)  // DOWN
+#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.25) // UP
+#define PAYLOAD_LIFT_PROPORTIONAL_CTRL (0.9)
+#define PAYLOAD_LIFT_DERIVATIVE_CTRL (0.09)
 #define PAYLOAD_LIFT_FEED_FWD_CTRL (0)
-#define PAYLOAD_LIFT_RAMP_TIME (2) // Seconds to get from neutral (0) and full speed (peak output)
+#define PAYLOAD_LIFT_RAMP_TIME (0) // Seconds to get from neutral to full speed (peak output)
 #define PAYLOAD_LIFT_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
 
 /*************************************************************************************************/

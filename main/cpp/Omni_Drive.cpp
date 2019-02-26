@@ -21,11 +21,12 @@
 #define OMNI_DRIVE_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
 
 // TalonSRX Configuration -- SET Values
-#define OMNI_DRIVE_PEAK_OUTPUT (0.35) // Maximum output speed 0->1
-#define OMNI_DRIVE_PROPORTIONAL_CTRL (0.35)
-#define OMNI_DRIVE_DERIVATIVE_CTRL (0.035)
+#define OMNI_DRIVE_PEAK_OUTPUT_FWD (0.35) // Maximum output speed 0->1
+#define OMNI_DRIVE_PEAK_OUTPUT_REV (-0.35)
+#define OMNI_DRIVE_PROPORTIONAL_CTRL (0.01)
+#define OMNI_DRIVE_DERIVATIVE_CTRL (0.001)
 #define OMNI_DRIVE_FEED_FWD_CTRL (0)
-#define OMNI_DRIVE_RAMP_TIME (2) // Seconds to get from neutral (0) and full speed (peak output)
+#define OMNI_DRIVE_RAMP_TIME (0) // Seconds to get from neutral to full speed (peak output)
 #define OMNI_DRIVE_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
 
 // Deadband value for rejecting small movements of Joystick accidently by operator
@@ -76,8 +77,8 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
     FrontLeft_Leader.SetInverted(true);
     if (OMNI_DRIVE_WRITE_CONFIGURATION)
     {
-        FrontLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
-        FrontLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+        FrontLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
+        FrontLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
         FrontLeft_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
         FrontLeft_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
         FrontLeft_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
@@ -90,8 +91,8 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
     RearLeft_Leader.SetInverted(true);
     if (OMNI_DRIVE_WRITE_CONFIGURATION)
     {
-        RearLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
-        RearLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+        RearLeft_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
+        RearLeft_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
         RearLeft_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
         RearLeft_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
         RearLeft_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
@@ -104,8 +105,8 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
     FrontRight_Leader.SetInverted(true);
     if (OMNI_DRIVE_WRITE_CONFIGURATION)
     {
-        FrontRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
-        FrontRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+        FrontRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
+        FrontRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
         FrontRight_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
         FrontRight_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
         FrontRight_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
@@ -118,8 +119,8 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
     RearRight_Leader.SetInverted(true);
     if (OMNI_DRIVE_WRITE_CONFIGURATION)
     {
-        RearRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT);
-        RearRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT);
+        RearRight_Leader.ConfigPeakOutputForward(OMNI_DRIVE_PEAK_OUTPUT_FWD);
+        RearRight_Leader.ConfigPeakOutputReverse(OMNI_DRIVE_PEAK_OUTPUT_REV);
         RearRight_Leader.ConfigClosedloopRamp(OMNI_DRIVE_RAMP_TIME);
         RearRight_Leader.Config_kP(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_PROPORTIONAL_CTRL);
         RearRight_Leader.Config_kD(OMNI_DRIVE_SLOT_IDX, OMNI_DRIVE_DERIVATIVE_CTRL);
