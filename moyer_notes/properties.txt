@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/build/tmp/expandedArchives/cameraserver-cpp-2019.1.1-headers.zip_8e6098f7e4e3b331e0504d2d66cebd71",
+                "${workspaceFolder}/build/tmp/expandedArchives/cscore-cpp-2019.1.1-headers.zip_8872a682a8b282d24272d8aebeb3f812",
+                "${workspaceFolder}/build/tmp/expandedArchives/api-cpp-5.12.1-headers.zip_e986b26473fb15f3bc8719ff3984c310",
+                "C:/Users/Public/frc2019/roborio/arm-frc2019-linux-gnueabi/usr/include",
+                "C:/MinGW/lib/gcc/mingw32/5.3.0/include/c++",
+                "C:/MinGW/lib/gcc/mingw32/5.3.0/include/c++/mingw32",
+                "${workspaceFolder}/build/tmp/expandedArchives/core-5.12.1-headers.zip_a0ce3d09c679775751593f941c53f00d",
+                "${workspaceFolder}/build/tmp/expandedArchives/cci-5.12.1-headers.zip_ac01d991886b7cad435836f8b648e3f3",
+                "C:/MinGW/lib/gcc/mingw32/5.3.0/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\MinGW\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "configurationProvider": "vscode-wpilib"
+        }
+    ],
+    "version": 4
+}
