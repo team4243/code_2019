@@ -17,11 +17,15 @@
 
 // Enabling Bits
 #define ENABLE_OMNI_DRIVE (false)
-#define ENABLE_PAYLOAD_LIFT (false)
-#define ENABLE_END_EFFECTOR (true)
+#define ENABLE_PAYLOAD_LIFT (true)
+#define ENABLE_END_EFFECTOR (false)
+
+// Defining Controller
+#define DRIVER_ONE_USING_XBOX (true)
+#define DRIVER_TWO_USING_XBOX (true)
 
 // Print encoder values for any ENABLED mechanisms
-#define PRINT_ENCODER_VALUES (true)
+#define PRINT_ENCODER_VALUES (false)
 
 // Deadband for Gamepad Triggers
 #define DEADBAND_TRIGGER (0.12)
@@ -32,21 +36,22 @@
 // Drive logic -- Velocity Mode and Manual
 #define CTRL_DRIVE_LEFT_RIGHT (Driver_One.GetX())
 #define CTRL_DRIVE_FWD_BWD (-Driver_One.GetY())
-#define CTRL_DRIVE_ROTATE (Driver_One.GetRawAxis(AXIS_RIGHT_X))
-#define CTRL_DRIVE_SWITCH_MANUAL (Driver_One.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_One.GetRawButton(BUTTON_BUMPER_RIGHT))
+#define CTRL_DRIVE_ROTATE ((Driver_One.GetRawAxis(AXIS_RIGHT_X) && DRIVER_ONE_USING_XBOX) || (Driver_One.GetRawAxis(AXIS_R3_X) && !DRIVER_ONE_USING_XBOX))
+//#define CTRL_DRIVE_ROTATE (!DRIVER_ONE_USING_XBOX ? Driver_One.GetRawAxis(AXIS_RIGHT_X) : Driver_One.GetRawAxis(AXIS_R3_X))
+#define CTRL_DRIVE_SWITCH_MANUAL ((Driver_One.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_One.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_ONE_USING_XBOX) || (Driver_One.GetRawButton(BUTTON_L1) && Driver_One.GetRawButton(BUTTON_R1) && !DRIVER_ONE_USING_XBOX))
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- Payload Lift ****/
 
 // Lift logic -- Position Mode -- Cargo
-#define CTRL_LIFT_POSITION_LOW_CARGO (Driver_Two.GetRawButton(BUTTON_GREEN) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
-#define CTRL_LIFT_POSITION_MID_CARGO (Driver_Two.GetRawButton(BUTTON_RED) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
-#define CTRL_LIFT_POSITION_HIGH_CARGO (Driver_Two.GetRawButton(BUTTON_YELLOW) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
+#define CTRL_LIFT_POSITION_LOW_CARGO ((Driver_Two.GetRawButton(BUTTON_GREEN) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CROSS) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_LIFT_POSITION_MID_CARGO ((Driver_Two.GetRawButton(BUTTON_RED) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CIRCLE) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_LIFT_POSITION_HIGH_CARGO ((Driver_Two.GetRawButton(BUTTON_YELLOW) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
 
 // Lift logic -- Position Mode -- Hatch
-#define CTRL_LIFT_POSITION_LOW_HATCH (Driver_Two.GetRawButton(BUTTON_GREEN) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
-#define CTRL_LIFT_POSITION_MID_HATCH (Driver_Two.GetRawButton(BUTTON_RED) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
-#define CTRL_LIFT_POSITION_HIGH_HATCH (Driver_Two.GetRawButton(BUTTON_YELLOW) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
+#define CTRL_LIFT_POSITION_LOW_HATCH ((Driver_Two.GetRawButton(BUTTON_GREEN) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CROSS) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_LIFT_POSITION_MID_HATCH ((Driver_Two.GetRawButton(BUTTON_RED) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CIRCLE) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_LIFT_POSITION_HIGH_HATCH ((Driver_Two.GetRawButton(BUTTON_YELLOW) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
 
 // Lift logic -- Position Adjustment
 #define CTRL_LIFT_POSITION_STEP_UP (Driver_Two.GetPOV() == 0)
@@ -54,36 +59,36 @@
 
 // Lift logic -- Manual
 #define CTRL_LIFT_UP_DOWN (-Driver_Two.GetY())
-#define CTRL_LIFT_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
+#define CTRL_LIFT_SWITCH_MANUAL ((Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_R3) && !DRIVER_TWO_USING_XBOX))
 
 // Lift logic -- Encoder Zeroing for initial calibration
-#define CTRL_ALL_BUMPERS (Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
-#define CTRL_ALL_TRIGGERS ((Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER) == 1) && (Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1))
-#define CTRL_ALL_MENUS (Driver_Two.GetRawButton(BUTTON_BACK) && Driver_Two.GetRawButton(BUTTON_START))
+#define CTRL_ALL_BUMPERS ((Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_L1) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_ALL_TRIGGERS (((Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER) == 1) && (Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_L2) && Driver_Two.GetRawButton(BUTTON_R2) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_ALL_MENUS ((Driver_Two.GetRawButton(BUTTON_BACK) && Driver_Two.GetRawButton(BUTTON_START) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_SHARE) && Driver_Two.GetRawButton(BUTTON_OPTIONS) && !DRIVER_TWO_USING_XBOX))
 #define CTRL_LIFT_ENCODER_ZERO (CTRL_ALL_BUMPERS && CTRL_ALL_TRIGGERS && CTRL_ALL_MENUS)
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- End Effector ****/
 
 // Trigger values for Cargo Roller and Hatch Flower
-#define LEFT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER))
-#define RIGHT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER))
+#define LEFT_TRIGGER_VALUE ((Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawAxis(AXIS_L2) && !DRIVER_TWO_USING_XBOX))
+#define RIGHT_TRIGGER_VALUE ((Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawAxis(AXIS_R2) && !DRIVER_TWO_USING_XBOX))
 
 // Cargo Roller logic -- Velocity Mode
-#define CTRL_ROLL_IN (LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
-#define CTRL_ROLL_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT))
+#define CTRL_ROLL_IN (((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || ((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_ROLL_OUT (((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || ((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
 
 // Cargo Roller logic -- MANUAL
 #define CTRL_ROLL_IN_OUT (Driver_Two.GetX())
-#define CTRL_ROLL_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS))
+#define CTRL_ROLL_SWITCH_MANUAL ((Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_R3) && !DRIVER_TWO_USING_XBOX))
 
-// Hatch Flower logic
-#define CTRL_HATCH_IN (LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
-#define CTRL_HATCH_OUT (RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT))
+// Mechanical Lili-Pad Balloon logic
+#define CTRL_HATCH_IN (((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || ((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_HATCH_OUT (((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || ((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
 
 // Camera Tilt logic
-#define CTRL_CAMERA_UP ((Driver_One.GetRawAxis(AXIS_LEFT_TRIGGER) == 1) || Driver_Two.GetRawButton(BUTTON_YELLOW))
-#define CTRL_CAMERA_DOWN ((Driver_One.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1) || Driver_Two.GetRawButton(BUTTON_GREEN))
+#define CTRL_CAMERA_UP ((((Driver_One.GetRawAxis(AXIS_LEFT_TRIGGER) == 1) && DRIVER_ONE_USING_XBOX) || (Driver_One.GetRawButton(BUTTON_L2) && !DRIVER_ONE_USING_XBOX)) || ((Driver_Two.GetRawButton(BUTTON_YELLOW) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && !DRIVER_TWO_USING_XBOX)))
+#define CTRL_CAMERA_DOWN ((((Driver_One.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1) && DRIVER_ONE_USING_XBOX) || (Driver_One.GetRawButton(BUTTON_R2) && !DRIVER_ONE_USING_XBOX)) || ((Driver_Two.GetRawButton(BUTTON_GREEN) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CROSS) && !DRIVER_TWO_USING_XBOX)))
 
 /*************************************************************************************************/
 /**** Object Declarations and Global Variables ****/

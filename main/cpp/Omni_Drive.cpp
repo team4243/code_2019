@@ -15,7 +15,7 @@
 /**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 
 // Robot speed as Rotations Per Second (RPS) of output shaft, the setpoint of the PID controller
-#define OMNI_DRIVE_SPEED_RPS (10.0) // MAX is 125
+#define OMNI_DRIVE_SPEED_RPS (70.0) // MAX is 125
 
 // TalonSRX Configuration -- ENABLE
 #define OMNI_DRIVE_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
