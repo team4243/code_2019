@@ -7,6 +7,8 @@
 #include "Excelsior_Classes.h"
 #include <iostream>
 
+#include <Math.h>
+
 /**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 /*************************************************************************************************/
 /**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
@@ -16,16 +18,15 @@
 #define DRIVER_TWO_CHANNEL (1) // SWAP THESE CHANNELS IF TESTING JUST DRIVER TWO CONTROLS!
 
 // Enabling Bits
-#define ENABLE_OMNI_DRIVE (false)
+#define ENABLE_OMNI_DRIVE (true)
 #define ENABLE_PAYLOAD_LIFT (true)
 #define ENABLE_END_EFFECTOR (false)
 
-// Defining Controller
-#define DRIVER_ONE_USING_XBOX (true)
-#define DRIVER_TWO_USING_XBOX (true)
+// Print operator control
+#define PRINT_CONTROL_VALUES (true)
 
 // Print encoder values for any ENABLED mechanisms
-#define PRINT_ENCODER_VALUES (false)
+#define PRINT_ENCODER_VALUES (true)
 
 // Deadband for Gamepad Triggers
 #define DEADBAND_TRIGGER (0.12)
@@ -36,22 +37,21 @@
 // Drive logic -- Velocity Mode and Manual
 #define CTRL_DRIVE_LEFT_RIGHT (Driver_One.GetX())
 #define CTRL_DRIVE_FWD_BWD (-Driver_One.GetY())
-#define CTRL_DRIVE_ROTATE ((Driver_One.GetRawAxis(AXIS_RIGHT_X) && DRIVER_ONE_USING_XBOX) || (Driver_One.GetRawAxis(AXIS_R3_X) && !DRIVER_ONE_USING_XBOX))
-//#define CTRL_DRIVE_ROTATE (!DRIVER_ONE_USING_XBOX ? Driver_One.GetRawAxis(AXIS_RIGHT_X) : Driver_One.GetRawAxis(AXIS_R3_X))
-#define CTRL_DRIVE_SWITCH_MANUAL ((Driver_One.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_One.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_ONE_USING_XBOX) || (Driver_One.GetRawButton(BUTTON_L1) && Driver_One.GetRawButton(BUTTON_R1) && !DRIVER_ONE_USING_XBOX))
+#define CTRL_DRIVE_ROTATE (Driver_One.GetRawAxis(AXIS_R3_X))
+#define CTRL_DRIVE_SWITCH_MANUAL (Driver_One.GetRawButton(BUTTON_L1) && Driver_One.GetRawButton(BUTTON_R1))
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- Payload Lift ****/
 
 // Lift logic -- Position Mode -- Cargo
-#define CTRL_LIFT_POSITION_LOW_CARGO ((Driver_Two.GetRawButton(BUTTON_GREEN) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CROSS) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_LIFT_POSITION_MID_CARGO ((Driver_Two.GetRawButton(BUTTON_RED) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CIRCLE) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_LIFT_POSITION_HIGH_CARGO ((Driver_Two.GetRawButton(BUTTON_YELLOW) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_LIFT_POSITION_LOW_CARGO (Driver_Two.GetRawButton(BUTTON_CROSS) && Driver_Two.GetRawButton(BUTTON_L1))
+#define CTRL_LIFT_POSITION_MID_CARGO (Driver_Two.GetRawButton(BUTTON_CIRCLE) && Driver_Two.GetRawButton(BUTTON_L1))
+#define CTRL_LIFT_POSITION_HIGH_CARGO (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && Driver_Two.GetRawButton(BUTTON_L1))
 
 // Lift logic -- Position Mode -- Hatch
-#define CTRL_LIFT_POSITION_LOW_HATCH ((Driver_Two.GetRawButton(BUTTON_GREEN) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CROSS) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_LIFT_POSITION_MID_HATCH ((Driver_Two.GetRawButton(BUTTON_RED) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CIRCLE) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_LIFT_POSITION_HIGH_HATCH ((Driver_Two.GetRawButton(BUTTON_YELLOW) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_LIFT_POSITION_LOW_HATCH (Driver_Two.GetRawButton(BUTTON_CROSS) && Driver_Two.GetRawButton(BUTTON_R1))
+#define CTRL_LIFT_POSITION_MID_HATCH (Driver_Two.GetRawButton(BUTTON_CIRCLE) && Driver_Two.GetRawButton(BUTTON_R1))
+#define CTRL_LIFT_POSITION_HIGH_HATCH (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && Driver_Two.GetRawButton(BUTTON_R1))
 
 // Lift logic -- Position Adjustment
 #define CTRL_LIFT_POSITION_STEP_UP (Driver_Two.GetPOV() == 0)
@@ -59,36 +59,35 @@
 
 // Lift logic -- Manual
 #define CTRL_LIFT_UP_DOWN (-Driver_Two.GetY())
-#define CTRL_LIFT_SWITCH_MANUAL ((Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_R3) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_LIFT_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_R3))
 
 // Lift logic -- Encoder Zeroing for initial calibration
-#define CTRL_ALL_BUMPERS ((Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_L1) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_ALL_TRIGGERS (((Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER) == 1) && (Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_L2) && Driver_Two.GetRawButton(BUTTON_R2) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_ALL_MENUS ((Driver_Two.GetRawButton(BUTTON_BACK) && Driver_Two.GetRawButton(BUTTON_START) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_SHARE) && Driver_Two.GetRawButton(BUTTON_OPTIONS) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_LIFT_ENCODER_ZERO (CTRL_ALL_BUMPERS && CTRL_ALL_TRIGGERS && CTRL_ALL_MENUS)
+#define CTRL_ALL_TRIGGERS (Driver_Two.GetRawButton(BUTTON_L2) && Driver_Two.GetRawButton(BUTTON_R2))
+#define CTRL_ALL_MENUS (Driver_Two.GetRawButton(BUTTON_SHARE) && Driver_Two.GetRawButton(BUTTON_OPTIONS))
+#define CTRL_LIFT_ENCODER_ZERO (CTRL_ALL_TRIGGERS && CTRL_ALL_MENUS)
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- End Effector ****/
 
 // Trigger values for Cargo Roller and Hatch Flower
-#define LEFT_TRIGGER_VALUE ((Driver_Two.GetRawAxis(AXIS_LEFT_TRIGGER) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawAxis(AXIS_L2) && !DRIVER_TWO_USING_XBOX))
-#define RIGHT_TRIGGER_VALUE ((Driver_Two.GetRawAxis(AXIS_RIGHT_TRIGGER) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawAxis(AXIS_R2) && !DRIVER_TWO_USING_XBOX))
+#define LEFT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_L2))
+#define RIGHT_TRIGGER_VALUE (Driver_Two.GetRawAxis(AXIS_R2))
 
 // Cargo Roller logic -- Velocity Mode
-#define CTRL_ROLL_IN (((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || ((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_ROLL_OUT (((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_BUMPER_LEFT) && DRIVER_TWO_USING_XBOX) || ((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_L1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_ROLL_IN ((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_L1))
+#define CTRL_ROLL_OUT ((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_L1))
 
 // Cargo Roller logic -- MANUAL
 #define CTRL_ROLL_IN_OUT (Driver_Two.GetX())
-#define CTRL_ROLL_SWITCH_MANUAL ((Driver_Two.GetRawButton(BUTTON_RIGHT_STICK_PRESS) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_R3) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_ROLL_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_R3))
 
 // Mechanical Lili-Pad Balloon logic
-#define CTRL_HATCH_IN (((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || ((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
-#define CTRL_HATCH_OUT (((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_BUMPER_RIGHT) && DRIVER_TWO_USING_XBOX) || ((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_R1) && !DRIVER_TWO_USING_XBOX))
+#define CTRL_HATCH_IN ((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_R1))
+#define CTRL_HATCH_OUT ((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_R1))
 
 // Camera Tilt logic
-#define CTRL_CAMERA_UP ((((Driver_One.GetRawAxis(AXIS_LEFT_TRIGGER) == 1) && DRIVER_ONE_USING_XBOX) || (Driver_One.GetRawButton(BUTTON_L2) && !DRIVER_ONE_USING_XBOX)) || ((Driver_Two.GetRawButton(BUTTON_YELLOW) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && !DRIVER_TWO_USING_XBOX)))
-#define CTRL_CAMERA_DOWN ((((Driver_One.GetRawAxis(AXIS_RIGHT_TRIGGER) == 1) && DRIVER_ONE_USING_XBOX) || (Driver_One.GetRawButton(BUTTON_R2) && !DRIVER_ONE_USING_XBOX)) || ((Driver_Two.GetRawButton(BUTTON_GREEN) && DRIVER_TWO_USING_XBOX) || (Driver_Two.GetRawButton(BUTTON_CROSS) && !DRIVER_TWO_USING_XBOX)))
+#define CTRL_CAMERA_UP (Driver_One.GetRawButton(BUTTON_L2) || Driver_Two.GetRawButton(BUTTON_TRIANGLE))
+#define CTRL_CAMERA_DOWN (Driver_One.GetRawButton(BUTTON_R2) || Driver_Two.GetRawButton(BUTTON_CROSS))
 
 /*************************************************************************************************/
 /**** Object Declarations and Global Variables ****/
@@ -122,9 +121,30 @@ void Robot::TeleopPeriodic()
         // Drive robot
         Omni_Drive.Omni_Drive_Action(CTRL_DRIVE_LEFT_RIGHT, CTRL_DRIVE_FWD_BWD, CTRL_DRIVE_ROTATE, CTRL_DRIVE_SWITCH_MANUAL);
 
-        // Print raw encoder values
-        if (PRINT_ENCODER_VALUES)
-            Omni_Drive.Print_Omni_Encoders();
+        if (PRINT_CONTROL_VALUES)
+        {
+            if (abs(CTRL_DRIVE_FWD_BWD) > 0.15)
+            {
+                std::cout << "WARNING: "
+                          << "Forwards by" << CTRL_DRIVE_FWD_BWD << std::endl;
+            }
+            if (abs(CTRL_DRIVE_LEFT_RIGHT) > 0.15)
+            {
+                std::cout << "WARNING: "
+                          << "Strafing by" << CTRL_DRIVE_LEFT_RIGHT << std::endl;
+            }
+            if (abs(CTRL_DRIVE_ROTATE) > 0.15)
+            {
+                std::cout << "WARNING: "
+                          << "Rotating by" << CTRL_DRIVE_ROTATE << std::endl;
+            }
+            if (CTRL_DRIVE_SWITCH_MANUAL)
+            {
+                std::cout << "WARNING: "
+                          << "{M} Manual Drive Mode Activated"
+                          << "" << std::endl;
+            }
+        }
     }
 
     /************* PAYLOAD LIFT LOGIC ***************/
@@ -132,31 +152,80 @@ void Robot::TeleopPeriodic()
     {
         // Zero out the Lift Arm
         if (CTRL_LIFT_ENCODER_ZERO)
-            Payload_Lift.Zero_Encoder_Position();
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "Enconders Zeroed"
+                          << "" << std::endl;
+            else
+                Payload_Lift.Zero_Encoder_Position();
+        }
 
         // Set Lift Position -- Cargo LOW
         else if (CTRL_LIFT_POSITION_LOW_CARGO)
-            Payload_Lift.Payload_Lift_Action(Lowest_Cargo_Position);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "(C) Lowest Position Targetted by Arm"
+                          << "" << std::endl;
+            else
+                Payload_Lift.Payload_Lift_Action(Lowest_Cargo_Position);
+        }
 
         // Set Lift Position -- Hatch LOW
         else if (CTRL_LIFT_POSITION_LOW_HATCH)
-            Payload_Lift.Payload_Lift_Action(Lowest_Hatch_Position);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "(H) Lowest Position Targetted by Arm"
+                          << "" << std::endl;
+            else
+                Payload_Lift.Payload_Lift_Action(Lowest_Hatch_Position);
+        }
 
         // Set Lift Position -- Cargo MIDDLE
         else if (CTRL_LIFT_POSITION_MID_CARGO)
-            Payload_Lift.Payload_Lift_Action(Middle_Cargo_Position);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "(C) Middle Position Targetted by Arm"
+                          << "" << std::endl;
+            else
+                Payload_Lift.Payload_Lift_Action(Middle_Cargo_Position);
+        }
 
         // Set Lift Position -- Hatch MIDDLE
         else if (CTRL_LIFT_POSITION_MID_HATCH)
-            Payload_Lift.Payload_Lift_Action(Middle_Hatch_Position);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "(H) Middle Position Targetted by Arm"
+                          << "" << std::endl;
+            else
+                Payload_Lift.Payload_Lift_Action(Middle_Hatch_Position);
+        }
 
         // Set Lift Position -- Cargo HIGH
         else if (CTRL_LIFT_POSITION_HIGH_CARGO)
-            Payload_Lift.Payload_Lift_Action(Highest_Cargo_Position);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "(C) Highest Position Targetted by Arm"
+                          << "" << std::endl;
+            else
+                Payload_Lift.Payload_Lift_Action(Highest_Cargo_Position);
+        }
 
         // Set Lift Position -- Hatch HIGH
         else if (CTRL_LIFT_POSITION_HIGH_HATCH)
-            Payload_Lift.Payload_Lift_Action(Highest_Hatch_Position);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "(H) Highest Position Targetted by Arm"
+                          << "" << std::endl;
+            else
+                Payload_Lift.Payload_Lift_Action(Highest_Hatch_Position);
+        }
 
         // Set Lift Position -- Move to next highest lift position
         else if (CTRL_LIFT_POSITION_STEP_UP)
@@ -165,7 +234,13 @@ void Robot::TeleopPeriodic()
             if (!pressedLastFrame_autoLift)
             {
                 pressedLastFrame_autoLift = true;
-                Payload_Lift.Payload_Lift_Step(true);
+
+                if (PRINT_CONTROL_VALUES)
+                    std::cout << "WARNING: "
+                              << "Next Position Targetted by Arm"
+                              << "" << std::endl;
+                else
+                    Payload_Lift.Payload_Lift_Step(true);
             }
         }
 
@@ -175,14 +250,25 @@ void Robot::TeleopPeriodic()
             if (!pressedLastFrame_autoLift)
             {
                 pressedLastFrame_autoLift = true;
-                Payload_Lift.Payload_Lift_Step(false);
+
+                if (PRINT_CONTROL_VALUES)
+                    std::cout << "WARNING: "
+                              << "Previous Position Targetted by Arm"
+                              << "" << std::endl;
+                else
+                    Payload_Lift.Payload_Lift_Step(false);
             }
         }
 
         // Set Lift Position -- MANUAL
         else if (CTRL_LIFT_SWITCH_MANUAL)
         {
-            Payload_Lift.Payload_Lift_Manual(CTRL_LIFT_UP_DOWN);
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "(M) Moving Arm by " << CTRL_LIFT_UP_DOWN << std::endl;
+            else
+                Payload_Lift.Payload_Lift_Manual(CTRL_LIFT_UP_DOWN);
+
             pressedLastFrame_manualLift = true;
         }
 
@@ -195,13 +281,13 @@ void Robot::TeleopPeriodic()
         // Stop the Lift if operator releases manual switch
         if (!CTRL_LIFT_SWITCH_MANUAL && pressedLastFrame_manualLift)
         {
-            Payload_Lift.Payload_Lift_Manual(0);
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "(M) Stopping Arm"
+                          << "" << std::endl;
+
             pressedLastFrame_manualLift = false;
         }
-
-        // Print raw encoder values
-        if (PRINT_ENCODER_VALUES)
-            Payload_Lift.Print_Lift_Encoder();
     }
 
     /************* END EFFECTOR LOGIC ***************/
@@ -211,40 +297,82 @@ void Robot::TeleopPeriodic()
         if (CTRL_ROLL_SWITCH_MANUAL)
         {
             pressedLastFrame_cargoRollers = true;
-            End_Effector.Cargo_Roller_Manual(CTRL_ROLL_IN_OUT);
+
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "[M] Rolling Cargo Ball by " << CTRL_ROLL_IN_OUT << std::endl;
+            else
+                End_Effector.Cargo_Roller_Manual(CTRL_ROLL_IN_OUT);
         }
 
         // Check if the Manual Cargo Roller switch has been released
         else if (!CTRL_ROLL_SWITCH_MANUAL && pressedLastFrame_cargoRollers)
         {
             pressedLastFrame_cargoRollers = false;
-            End_Effector.Cargo_Roller_Manual(0);
+
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "[M] Stopping Rollers" << std::endl;
+            else
+                End_Effector.Cargo_Roller_Manual(0);
         }
 
         // Cargo Rollers -- Velocity Control
         else if (CTRL_ROLL_IN)
-            End_Effector.Cargo_Roller_Action(true, LEFT_TRIGGER_VALUE);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "Swallowing Cargo Ball" << std::endl;
+            else
+                End_Effector.Cargo_Roller_Action(true, LEFT_TRIGGER_VALUE);
+        }
 
         else if (CTRL_ROLL_OUT)
-            End_Effector.Cargo_Roller_Action(false, RIGHT_TRIGGER_VALUE);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "Spitting Cargo Ball" << std::endl;
+            else
+                End_Effector.Cargo_Roller_Action(false, RIGHT_TRIGGER_VALUE);
+        }
 
         // Hatch Flower
         else if (CTRL_HATCH_IN)
-            End_Effector.Hatch_Flower_Action(true);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "Contracting Mechanical Lili-Pad Ballon" << std::endl;
+            else
+                End_Effector.Hatch_Flower_Action(true);
+        }
 
         else if (CTRL_HATCH_OUT)
-            End_Effector.Hatch_Flower_Action(false);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "Extending Mechanical Lili-Pad Balloon" << std::endl;
+            else
+                End_Effector.Hatch_Flower_Action(false);
+        }
 
         // Camera Tilt
         if (CTRL_CAMERA_UP)
-            End_Effector.Camera_Tilt_Action(true);
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "Upwards Camera Movement" << std::endl;
+            else
+                End_Effector.Camera_Tilt_Action(true);
+        }
 
         else if (CTRL_CAMERA_DOWN)
-            End_Effector.Camera_Tilt_Action(false);
-
-        // Print raw encoder values
-        if (PRINT_ENCODER_VALUES)
-            End_Effector.Print_Roller_Encoders();
+        {
+            if (PRINT_CONTROL_VALUES)
+                std::cout << "WARNING: "
+                          << "Downwards Camera Movement" << std::endl;
+            else
+                End_Effector.Camera_Tilt_Action(false);
+        }
     }
 }
 
@@ -253,9 +381,6 @@ void Robot::TeleopPeriodic()
 
 void Robot::RobotInit()
 {
-    Omni_Drive.Configure_Omni_Drive();
-    Payload_Lift.Configure_Payload_Lift();
-    End_Effector.Configure_End_Effector();
 }
 
 /*************************************************************************************************/

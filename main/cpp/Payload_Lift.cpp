@@ -1,6 +1,8 @@
 /*************************************************************************************************/
 /**** Includes ****/
 
+// 22 lbs at 90, 15lbs at 45
+
 #include "Excelsior_Classes.h"
 
 #include "frc/WPILib.h"
@@ -15,13 +17,13 @@
 /**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 
 // TalonSRX Configuration -- ENABLE
-#define PAYLOAD_LIFT_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
+#define PAYLOAD_LIFT_WRITE_CONFIGURATION (true) // enabling bit to set configuration so we don't do it every time
 
 // TalonSRX Configuration -- SET Values
-#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.05)  // DOWN
-#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.25) // UP
-#define PAYLOAD_LIFT_PROPORTIONAL_CTRL (0.9)
-#define PAYLOAD_LIFT_DERIVATIVE_CTRL (0.09)
+#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.001) // DOWN
+#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.5)  // UP
+#define PAYLOAD_LIFT_PROPORTIONAL_CTRL (1.0)
+#define PAYLOAD_LIFT_DERIVATIVE_CTRL (0.1)
 #define PAYLOAD_LIFT_FEED_FWD_CTRL (0)
 #define PAYLOAD_LIFT_RAMP_TIME (0) // Seconds to get from neutral to full speed (peak output)
 #define PAYLOAD_LIFT_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
@@ -56,7 +58,8 @@ WPI_TalonSRX Payload_Lift_Leader{PAYLOAD_LIFT_DEVICENUMBER_LEADER};
 WPI_TalonSRX Payload_Lift_Follower{PAYLOAD_LIFT_DEVICENUMBER_FOLLOWER};
 
 // Keeping track of the current Lift position
-int targetPayloadHeight = -1;
+int targetPayloadHeight = 0;
+double targetPositionActual = 0;
 
 /*************************************************************************************************/
 /**** Configuration ****/
@@ -92,12 +95,29 @@ void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position)
     Payload_Lift_Leader.Set(ControlMode::Position, -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR);
 
     targetPayloadHeight = (int)position;
+    targetPositionActual = Lift_Position[position];
 }
 
 void Excelsior_Payload_Lift::Payload_Lift_Manual(double speed)
 {
     // Manual lifting
-    Payload_Lift_Leader.Set(ControlMode::PercentOutput, speed);
+    if (speed > 0 && targetPayloadHeight < Maximum_Height_Position)
+    {
+        targetPositionActual += 0.01;
+        Payload_Lift_Leader.Set(ControlMode::Position, targetPositionActual * PAYLOAD_LIFT_POSITION_SCALAR);
+    }
+
+    else if (speed < 0 && targetPayloadHeight > 0)
+    {
+        targetPositionActual -= 0.01;
+        Payload_Lift_Leader.Set(ControlMode::Position, targetPositionActual * PAYLOAD_LIFT_POSITION_SCALAR);
+    }
+
+    if(targetPositionActual > Lift_Position[(Payload_Lift_Position)targetPayloadHeight] && targetPayloadHeight < (int)Lift_Position[Maximum_Height_Position])
+        targetPayloadHeight++;
+
+    if(targetPositionActual < Lift_Position[(Payload_Lift_Position)targetPayloadHeight] && targetPayloadHeight > 0)
+        targetPayloadHeight--;
 }
 
 void Excelsior_Payload_Lift::Payload_Lift_Step(bool stepUp)
@@ -125,5 +145,6 @@ void Excelsior_Payload_Lift::Print_Lift_Encoder()
 {
     std::cout << "Lift Encoder: " << Payload_Lift_Leader.GetSensorCollection().GetQuadraturePosition()
               << ", Target: " << -Lift_Position[(Payload_Lift_Position)targetPayloadHeight] * PAYLOAD_LIFT_POSITION_SCALAR
-              << ", Pos: " << (Payload_Lift_Position)targetPayloadHeight << std::endl;
+              << ", Pos: " << (Payload_Lift_Position)targetPayloadHeight
+              << ", Actual: " << targetPositionActual << std::endl;
 }
