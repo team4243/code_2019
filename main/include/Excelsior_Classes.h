@@ -75,7 +75,7 @@ class Excelsior_Omni_Drive
 {
 public:
   void Configure_Omni_Drive();
-  void Omni_Drive_Action(double x_value, double y_value, double rotation, bool manual);
+  void Omni_Drive_Action(double x_value, double y_value, double rotation, bool aligning);
   void Print_Omni_Encoders();
 };
 

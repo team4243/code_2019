@@ -48,10 +48,10 @@
 std::map<Payload_Lift_Position, int> Lift_Position{
     {Ground_Position, 0},
     {Travel_Position, 2},
-    {Lowest_Hatch_Position, 5},
-    {Lowest_Cargo_Position, 13},
+    {Lowest_Hatch_Position, 8},
+    {Lowest_Cargo_Position, 16},
     {Middle_Hatch_Position, 17},
-    {Middle_Cargo_Position, 24},
+    {Middle_Cargo_Position, 25},
     {Highest_Hatch_Position, 28},
     {Highest_Cargo_Position, 38},
     {Maximum_Height_Position, 40}};
@@ -94,11 +94,12 @@ void Excelsior_Payload_Lift::Configure_Payload_Lift()
 
 void Excelsior_Payload_Lift::Payload_Lift_Action(Payload_Lift_Position position)
 {
-    // Tell motor drive to use encoder-feedback for a lift position
-    Payload_Lift_Leader.Set(ControlMode::Position, -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR);
-
-    targetPayloadHeight = (int)position;
-    targetPositionActual = Lift_Position[position];
+    if ((int)position > targetPayloadHeight)
+    {
+        Payload_Lift_Leader.Set(ControlMode::Position, -Lift_Position[position] * PAYLOAD_LIFT_POSITION_SCALAR);
+        targetPayloadHeight = (int)position;
+        targetPositionActual = Lift_Position[position];
+    }
 }
 
 void Excelsior_Payload_Lift::Payload_Lift_Manual(double speed)
@@ -139,6 +140,7 @@ void Excelsior_Payload_Lift::Payload_Lift_Step(bool stepUp)
 void Excelsior_Payload_Lift::Zero_Encoder_Position()
 {
     Payload_Lift_Leader.SetSelectedSensorPosition(0, 0, 10);
+    Payload_Lift_Leader.Set(ControlMode::Position, 0);
 }
 
 /*************************************************************************************************/

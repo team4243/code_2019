@@ -20,16 +20,19 @@
 // Enabling Bits
 #define ENABLE_OMNI_DRIVE (true)
 #define ENABLE_PAYLOAD_LIFT (true)
-#define ENABLE_END_EFFECTOR (false)
+#define ENABLE_END_EFFECTOR (true)
 
 // Print operator control
-#define PRINT_CONTROL_VALUES (true)
+#define PRINT_CONTROL_VALUES (false)
 
 // Print encoder values for any ENABLED mechanisms
 #define PRINT_ENCODER_VALUES (true)
 
 // Deadband for Gamepad Triggers
 #define DEADBAND_TRIGGER (0.12)
+
+// Speed to hold the cargo when releasing
+#define CARGO_ROLLER_HOLDING_SPEED (-0.1)
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- Omni Drive ****/
@@ -38,7 +41,7 @@
 #define CTRL_DRIVE_LEFT_RIGHT (Driver_One.GetX())
 #define CTRL_DRIVE_FWD_BWD (-Driver_One.GetY())
 #define CTRL_DRIVE_ROTATE (Driver_One.GetRawAxis(AXIS_R3_X))
-#define CTRL_DRIVE_SWITCH_MANUAL (true) //(Driver_One.GetRawButton(BUTTON_L1) && Driver_One.GetRawButton(BUTTON_R1))
+#define CTRL_DRIVE_SWITCH_ALIGNING (Driver_One.GetRawButton(BUTTON_L1))
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- Payload Lift ****/
@@ -54,17 +57,15 @@
 #define CTRL_LIFT_POSITION_HIGH_HATCH (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && Driver_Two.GetRawButton(BUTTON_R1))
 
 // Lift logic -- Position Adjustment
-#define CTRL_LIFT_POSITION_STEP_UP (Driver_Two.GetPOV() == 0)
-#define CTRL_LIFT_POSITION_STEP_DOWN (Driver_Two.GetPOV() == 180)
+#define CTRL_LIFT_POSITION_STEP_UP (false)   //(Driver_Two.GetPOV() == 0)
+#define CTRL_LIFT_POSITION_STEP_DOWN (false) // (Driver_Two.GetPOV() == 180)
 
 // Lift logic -- Manual
 #define CTRL_LIFT_UP_DOWN (-Driver_Two.GetY())
-#define CTRL_LIFT_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_R3))
+#define CTRL_LIFT_SWITCH_MANUAL (Driver_Two.GetY() > DEADBAND_TRIGGER || Driver_Two.GetY() < -DEADBAND_TRIGGER)
 
 // Lift logic -- Encoder Zeroing for initial calibration
-#define CTRL_ALL_TRIGGERS (Driver_Two.GetRawButton(BUTTON_L2) && Driver_Two.GetRawButton(BUTTON_R2))
-#define CTRL_ALL_MENUS (Driver_Two.GetRawButton(BUTTON_SHARE) && Driver_Two.GetRawButton(BUTTON_OPTIONS))
-#define CTRL_LIFT_ENCODER_ZERO (CTRL_ALL_TRIGGERS && CTRL_ALL_MENUS)
+#define CTRL_LIFT_ENCODER_ZERO (Driver_Two.GetRawButton(BUTTON_SHARE) && Driver_Two.GetRawButton(BUTTON_OPTIONS))
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- End Effector ****/
@@ -96,7 +97,7 @@
 Excelsior_Omni_Drive Omni_Drive;
 Excelsior_Payload_Lift Payload_Lift;
 Excelsior_End_Effector End_Effector;
-
+Best club epnguin emems 1302 4
 // Joystick Controllers, in this case we use Gamepad's instead of traditional joysticks
 frc::Joystick Driver_One{DRIVER_ONE_CHANNEL};
 frc::Joystick Driver_Two{DRIVER_TWO_CHANNEL};
@@ -136,16 +137,10 @@ void Robot::TeleopPeriodic()
                 std::cout << "WARNING: "
                           << "Rotating by" << CTRL_DRIVE_ROTATE << std::endl;
             }
-            if (CTRL_DRIVE_SWITCH_MANUAL)
-            {
-                std::cout << "WARNING: "
-                          << "{M} Manual Drive Mode Activated"
-                          << "" << std::endl;
-            }
         }
 
         else
-            Omni_Drive.Omni_Drive_Action(CTRL_DRIVE_LEFT_RIGHT, CTRL_DRIVE_FWD_BWD, CTRL_DRIVE_ROTATE, CTRL_DRIVE_SWITCH_MANUAL);
+            Omni_Drive.Omni_Drive_Action(CTRL_DRIVE_LEFT_RIGHT, CTRL_DRIVE_FWD_BWD, CTRL_DRIVE_ROTATE, CTRL_DRIVE_SWITCH_ALIGNING);
     }
 
     /************* PAYLOAD LIFT LOGIC ***************/
@@ -170,7 +165,7 @@ void Robot::TeleopPeriodic()
                           << "(C) Lowest Position Targetted by Arm -- Cargo"
                           << "" << std::endl;
             else
-                Payload_Lift.Payload_Lift_Action(Lowest_Cargo_Position);
+                Payload_Lift.Payload_Lift_Action(Lowest_Cargo_Position); //, Driver_Two);
         }
 
         // Set Lift Position -- Hatch LOW
@@ -181,7 +176,7 @@ void Robot::TeleopPeriodic()
                           << "(H) Lowest Position Targetted by Arm -- Hatch"
                           << "" << std::endl;
             else
-                Payload_Lift.Payload_Lift_Action(Lowest_Hatch_Position);
+                Payload_Lift.Payload_Lift_Action(Lowest_Hatch_Position); //, Driver_Two);
         }
 
         // Set Lift Position -- Cargo MIDDLE
@@ -192,7 +187,7 @@ void Robot::TeleopPeriodic()
                           << "(C) Middle Position Targetted by Arm -- Cargo"
                           << "" << std::endl;
             else
-                Payload_Lift.Payload_Lift_Action(Middle_Cargo_Position);
+                Payload_Lift.Payload_Lift_Action(Middle_Cargo_Position); //, Driver_Two);
         }
 
         // Set Lift Position -- Hatch MIDDLE
@@ -203,7 +198,7 @@ void Robot::TeleopPeriodic()
                           << "(H) Middle Position Targetted by Arm -- Hatch"
                           << "" << std::endl;
             else
-                Payload_Lift.Payload_Lift_Action(Middle_Hatch_Position);
+                Payload_Lift.Payload_Lift_Action(Middle_Hatch_Position); //, Driver_Two);
         }
 
         // Set Lift Position -- Cargo HIGH
@@ -214,7 +209,7 @@ void Robot::TeleopPeriodic()
                           << "(C) Highest Position Targetted by Arm -- Cargo"
                           << "" << std::endl;
             else
-                Payload_Lift.Payload_Lift_Action(Highest_Cargo_Position);
+                Payload_Lift.Payload_Lift_Action(Highest_Cargo_Position); //, Driver_Two);
         }
 
         // Set Lift Position -- Hatch HIGH
@@ -225,7 +220,7 @@ void Robot::TeleopPeriodic()
                           << "(H) Highest Position Targetted by Arm -- Hatch"
                           << "" << std::endl;
             else
-                Payload_Lift.Payload_Lift_Action(Highest_Hatch_Position);
+                Payload_Lift.Payload_Lift_Action(Highest_Hatch_Position); //, Driver_Two);
         }
 
         // Set Lift Position -- Move to next highest lift position
@@ -241,7 +236,7 @@ void Robot::TeleopPeriodic()
                               << "Next Position Targetted by Arm"
                               << "" << std::endl;
                 else
-                    Payload_Lift.Payload_Lift_Step(true);
+                    Payload_Lift.Payload_Lift_Step(true); //, Driver_Two);
             }
         }
 
@@ -257,7 +252,7 @@ void Robot::TeleopPeriodic()
                               << "Previous Position Targetted by Arm"
                               << "" << std::endl;
                 else
-                    Payload_Lift.Payload_Lift_Step(false);
+                    Payload_Lift.Payload_Lift_Step(false); //, Driver_Two);
             }
         }
 
@@ -295,36 +290,36 @@ void Robot::TeleopPeriodic()
     if (ENABLE_END_EFFECTOR)
     {
         // Cargo Rollers -- Manual Control
-        if (CTRL_ROLL_SWITCH_MANUAL)
-        {
-            pressedLastFrame_cargoRollers = true;
+        // if (CTRL_ROLL_SWITCH_MANUAL)
+        // {
+        //     pressedLastFrame_cargoRollers = true;
 
-            if (PRINT_CONTROL_VALUES)
-                std::cout << "WARNING: "
-                          << "[M] Rolling Cargo Ball by " << CTRL_ROLL_IN_OUT << std::endl;
-            else
-                End_Effector.Cargo_Roller_Manual(CTRL_ROLL_IN_OUT);
-        }
+        //     if (PRINT_CONTROL_VALUES)
+        //         std::cout << "WARNING: "
+        //                   << "[M] Rolling Cargo Ball by " << CTRL_ROLL_IN_OUT << std::endl;
+        //     else
+        //         End_Effector.Cargo_Roller_Manual(CTRL_ROLL_IN_OUT);
+        // }
 
-        // Check if the Manual Cargo Roller switch has been released
-        else if (!CTRL_ROLL_SWITCH_MANUAL && pressedLastFrame_cargoRollers)
-        {
-            pressedLastFrame_cargoRollers = false;
+        // // Check if the Manual Cargo Roller switch has been released
+        // else if (!CTRL_ROLL_SWITCH_MANUAL && pressedLastFrame_cargoRollers)
+        // {
+        //     pressedLastFrame_cargoRollers = false;
 
-            if (PRINT_CONTROL_VALUES)
-                std::cout << "WARNING: "
-                          << "[M] Stopping Rollers" << std::endl;
-            else
-                End_Effector.Cargo_Roller_Manual(0);
-        }
+        //     if (PRINT_CONTROL_VALUES)
+        //         std::cout << "WARNING: "
+        //                   << "[M] Stopping Rollers" << std::endl;
+        //     else
+        //         End_Effector.Cargo_Roller_Manual(0);
+        // }
 
         // Cargo Rollers -- Velocity Control
-        else if (CTRL_ROLL_IN)
+        if (CTRL_ROLL_IN)
         {
             if (PRINT_CONTROL_VALUES)
                 std::cout << "WARNING: "
                           << "Swallowing Cargo Ball" << std::endl;
-            else
+            else if (!pressedLastFrame_cargoRollers)
                 End_Effector.Cargo_Roller_Action(true, LEFT_TRIGGER_VALUE);
         }
 
@@ -333,7 +328,7 @@ void Robot::TeleopPeriodic()
             if (PRINT_CONTROL_VALUES)
                 std::cout << "WARNING: "
                           << "Spitting Cargo Ball" << std::endl;
-            else
+            else if (!pressedLastFrame_cargoRollers)
                 End_Effector.Cargo_Roller_Action(false, RIGHT_TRIGGER_VALUE);
         }
 
@@ -354,6 +349,14 @@ void Robot::TeleopPeriodic()
                           << "Extending Mechanical Lili-Pad Balloon" << std::endl;
             else
                 End_Effector.Hatch_Flower_Action(false);
+        }
+
+        else
+        {
+            if (!PRINT_CONTROL_VALUES)
+                End_Effector.Cargo_Roller_Action(true, CARGO_ROLLER_HOLDING_SPEED);
+
+            pressedLastFrame_cargoRollers = false;
         }
 
         // Camera Tilt
@@ -386,7 +389,16 @@ void Robot::RobotInit()
         Omni_Drive.Configure_Omni_Drive();
 
     if (ENABLE_PAYLOAD_LIFT)
+    {
         Payload_Lift.Configure_Payload_Lift();
+
+        if (PRINT_CONTROL_VALUES)
+            std::cout << "WARNING: "
+                      << "Enconders Zeroed"
+                      << "" << std::endl;
+        else
+            Payload_Lift.Zero_Encoder_Position();
+    }
 
     if (ENABLE_END_EFFECTOR)
         End_Effector.Configure_End_Effector();
@@ -398,7 +410,10 @@ void Robot::RobotInit()
 void Robot::RobotPeriodic() {}
 void Robot::TestPeriodic() {}
 void Robot::AutonomousInit() {}
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic()
+{
+    TeleopPeriodic();
+}
 void Robot::TeleopInit() {}
 
 /*************************************************************************************************/

@@ -14,8 +14,8 @@
 /*************************************************************************************************/
 /**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 
-// Robot speed as Rotations Per Second (RPS) of output shaft, the setpoint of the PID controller
-#define OMNI_DRIVE_SPEED_RPS (10.0) // MAX is 125
+#define OMNI_DRIVE_SPEED_ALIGNING (0.3)
+#define OMNI_DRIVE_SPEED_DRIVING (0.7)
 
 // TalonSRX Configuration -- ENABLE
 #define OMNI_DRIVE_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
@@ -134,7 +134,7 @@ void Excelsior_Omni_Drive::Configure_Omni_Drive()
 /*************************************************************************************************/
 /**** Actions ****/
 
-void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, double rotation, bool manual)
+void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, double rotation, bool aligning)
 {
     // Deadband for joystick
     if (x_value < OMNI_DRIVE_DEADBAND_VALUE && x_value > -OMNI_DRIVE_DEADBAND_VALUE)
@@ -153,23 +153,23 @@ void Excelsior_Omni_Drive::Omni_Drive_Action(double x_value, double y_value, dou
     double speed_rearLeft = scalar * sin(direction) + rotation;
     double speed_rearRight = scalar * cos(direction) - rotation;
 
-    if (!manual)
-    {
-        // Drive motors at actual speed (calculated speed scaled by MAX rotations per second)
-        FrontLeft_Leader.Set(ControlMode::Velocity, speed_frontLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
-        FrontRight_Leader.Set(ControlMode::Velocity, -speed_frontRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
-        RearLeft_Leader.Set(ControlMode::Velocity, speed_rearLeft * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
-        RearRight_Leader.Set(ControlMode::Velocity, -speed_rearRight * OMNI_DRIVE_SPEED_RPS * CONVERT_TO_RPS_DRIVE);
-    }
+    // if (!manual)
+    // {
+    //     // Drive motors at actual speed (calculated speed scaled by MAX rotations per second)
+    //     FrontLeft_Leader.Set(ControlMode::Velocity, speed_frontLeft * OMNI_DRIVE_SPEED_DRIVING * CONVERT_TO_RPS_DRIVE);
+    //     FrontRight_Leader.Set(ControlMode::Velocity, -speed_frontRight * OMNI_DRIVE_SPEED_DRIVING * CONVERT_TO_RPS_DRIVE);
+    //     RearLeft_Leader.Set(ControlMode::Velocity, speed_rearLeft * OMNI_DRIVE_SPEED_DRIVING * CONVERT_TO_RPS_DRIVE);
+    //     RearRight_Leader.Set(ControlMode::Velocity, -speed_rearRight * OMNI_DRIVE_SPEED_DRIVING * CONVERT_TO_RPS_DRIVE);
+    // }
 
-    else
-    {
-        // Manual driving
-        FrontLeft_Leader.Set(ControlMode::PercentOutput, speed_frontLeft);
-        FrontRight_Leader.Set(ControlMode::PercentOutput, -speed_frontRight);
-        RearLeft_Leader.Set(ControlMode::PercentOutput, speed_rearLeft);
-        RearRight_Leader.Set(ControlMode::PercentOutput, -speed_rearRight);
-    }
+    // else
+    // {
+    // Manual driving
+    FrontLeft_Leader.Set(ControlMode::PercentOutput, (aligning ? OMNI_DRIVE_SPEED_ALIGNING : OMNI_DRIVE_SPEED_DRIVING) * speed_frontLeft);
+    FrontRight_Leader.Set(ControlMode::PercentOutput, (aligning ? OMNI_DRIVE_SPEED_ALIGNING : OMNI_DRIVE_SPEED_DRIVING) * -speed_frontRight);
+    RearLeft_Leader.Set(ControlMode::PercentOutput, (aligning ? OMNI_DRIVE_SPEED_ALIGNING : OMNI_DRIVE_SPEED_DRIVING) * speed_rearLeft);
+    RearRight_Leader.Set(ControlMode::PercentOutput, (aligning ? OMNI_DRIVE_SPEED_ALIGNING : OMNI_DRIVE_SPEED_DRIVING) * -speed_rearRight);
+    // }
 }
 
 /*************************************************************************************************/

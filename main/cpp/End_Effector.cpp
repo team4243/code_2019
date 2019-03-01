@@ -18,7 +18,10 @@
 #define ENABLE_LIMIT_SWITCH_CARGO (false)
 
 // Cargo Roller speed as Rotations Per Second (RPS) of output shaft, the setpoint of the PID controller
-#define CARGO_ROLLER_SPEED_RPS (1.0)
+#define CARGO_ROLLER_SPEED (0.75)
+
+// Speed to move Camera
+#define CAMERA_TILT_STEP_AMOUNT (0.01)
 
 // TalonSRX Configuration -- ENABLE
 #define ROLLERS_WRITE_CONFIGURATION (false) // enabling bit to set configuration so we don't do it every time
@@ -34,7 +37,7 @@
 
 // Hatch Flower MAX/MIN values, 0->1
 #define HATCH_FLOWER_MAX (1.0)
-#define HATCH_FLOWER_MIN (0.1)
+#define HATCH_FLOWER_MIN (0.2)
 
 // Camera Tilt MAX/MIN values, 0->1
 #define CAMERA_TILT_MAX (0.7)
@@ -76,6 +79,8 @@ frc::PWM Camera_Tilt_Servo(CAMERA_TILT_PWM_CHANNEL);
 //We are adding a limit switch to check to see if the cargo is firmly secured within the end effector
 frc::DigitalInput End_Effector_Limit_Switch(LIMIT_SWITCH_CHANNEL);
 
+double Camera_Tilt_Position = 0.0;
+
 /*************************************************************************************************/
 /**** Configuration ****/
 
@@ -106,15 +111,15 @@ void Excelsior_End_Effector::Configure_End_Effector()
 void Excelsior_End_Effector::Cargo_Roller_Action(bool dispense, double speed)
 {
     if (dispense)
-        Cargo_Roller_Leader.Set(ControlMode::Velocity, speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS_EE);
+        Cargo_Roller_Leader.Set(ControlMode::PercentOutput, speed * CARGO_ROLLER_SPEED);
 
     else if (!ENABLE_LIMIT_SWITCH_CARGO || !End_Effector_Limit_Switch.Get())
-        Cargo_Roller_Leader.Set(ControlMode::Velocity, -speed * CARGO_ROLLER_SPEED_RPS * CONVERT_TO_RPS_EE);
+        Cargo_Roller_Leader.Set(ControlMode::PercentOutput, -speed * CARGO_ROLLER_SPEED);
 }
 
 void Excelsior_End_Effector::Cargo_Roller_Manual(double speed)
 {
-    Cargo_Roller_Leader.Set(ControlMode::PercentOutput, speed);
+    Cargo_Roller_Leader.Set(ControlMode::PercentOutput, speed * CARGO_ROLLER_SPEED);
 }
 
 void Excelsior_End_Effector::Hatch_Flower_Action(bool extend)
@@ -128,9 +133,21 @@ void Excelsior_End_Effector::Hatch_Flower_Action(bool extend)
 void Excelsior_End_Effector::Camera_Tilt_Action(bool tiltUp)
 {
     if (tiltUp)
-        Camera_Tilt_Servo.SetPosition(CAMERA_TILT_MAX);
+    {
+        if ((Camera_Tilt_Position + CAMERA_TILT_STEP_AMOUNT) <= 1)
+        {
+            Camera_Tilt_Position += CAMERA_TILT_STEP_AMOUNT;
+            Camera_Tilt_Servo.SetPosition(Camera_Tilt_Position);
+        }
+    }
     else
-        Camera_Tilt_Servo.SetPosition(CAMERA_TILT_MIN);
+    {
+        if ((Camera_Tilt_Position - CAMERA_TILT_STEP_AMOUNT) >= 0)
+        {
+            Camera_Tilt_Position -= CAMERA_TILT_STEP_AMOUNT;
+            Camera_Tilt_Servo.SetPosition(Camera_Tilt_Position);
+        }
+    }
 }
 
 /*************************************************************************************************/
