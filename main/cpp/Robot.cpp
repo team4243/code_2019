@@ -38,7 +38,7 @@
 #define CTRL_DRIVE_LEFT_RIGHT (Driver_One.GetX())
 #define CTRL_DRIVE_FWD_BWD (-Driver_One.GetY())
 #define CTRL_DRIVE_ROTATE (Driver_One.GetRawAxis(AXIS_R3_X))
-#define CTRL_DRIVE_SWITCH_MANUAL (Driver_One.GetRawButton(BUTTON_L1) && Driver_One.GetRawButton(BUTTON_R1))
+#define CTRL_DRIVE_SWITCH_MANUAL (true) //(Driver_One.GetRawButton(BUTTON_L1) && Driver_One.GetRawButton(BUTTON_R1))
 
 /*************************************************************************************************/
 /**** Control Logic Switchboard -- Payload Lift ****/
@@ -79,15 +79,15 @@
 
 // Cargo Roller logic -- MANUAL
 #define CTRL_ROLL_IN_OUT (Driver_Two.GetX())
-#define CTRL_ROLL_SWITCH_MANUAL (Driver_Two.GetRawButton(BUTTON_R3))
+#define CTRL_ROLL_SWITCH_MANUAL (true) //(Driver_Two.GetRawButton(BUTTON_R3))
 
 // Mechanical Lili-Pad Balloon logic
 #define CTRL_HATCH_IN ((LEFT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_R1))
 #define CTRL_HATCH_OUT ((RIGHT_TRIGGER_VALUE > DEADBAND_TRIGGER) && Driver_Two.GetRawButton(BUTTON_R1))
 
 // Camera Tilt logic
-#define CTRL_CAMERA_UP (Driver_One.GetRawButton(BUTTON_L2) || Driver_Two.GetRawButton(BUTTON_TRIANGLE))
-#define CTRL_CAMERA_DOWN (Driver_One.GetRawButton(BUTTON_R2) || Driver_Two.GetRawButton(BUTTON_CROSS))
+#define CTRL_CAMERA_UP (Driver_One.GetRawButton(BUTTON_L2))
+#define CTRL_CAMERA_DOWN (Driver_One.GetRawButton(BUTTON_R2))
 
 /*************************************************************************************************/
 /**** Object Declarations and Global Variables ****/
@@ -119,21 +119,19 @@ void Robot::TeleopPeriodic()
     if (ENABLE_OMNI_DRIVE)
     {
         // Drive robot
-        Omni_Drive.Omni_Drive_Action(CTRL_DRIVE_LEFT_RIGHT, CTRL_DRIVE_FWD_BWD, CTRL_DRIVE_ROTATE, CTRL_DRIVE_SWITCH_MANUAL);
-
         if (PRINT_CONTROL_VALUES)
         {
-            if (abs(CTRL_DRIVE_FWD_BWD) > 0.15)
+            if (abs(CTRL_DRIVE_FWD_BWD) > DEADBAND_TRIGGER)
             {
                 std::cout << "WARNING: "
                           << "Forwards by" << CTRL_DRIVE_FWD_BWD << std::endl;
             }
-            if (abs(CTRL_DRIVE_LEFT_RIGHT) > 0.15)
+            if (abs(CTRL_DRIVE_LEFT_RIGHT) > DEADBAND_TRIGGER)
             {
                 std::cout << "WARNING: "
                           << "Strafing by" << CTRL_DRIVE_LEFT_RIGHT << std::endl;
             }
-            if (abs(CTRL_DRIVE_ROTATE) > 0.15)
+            if (abs(CTRL_DRIVE_ROTATE) > DEADBAND_TRIGGER)
             {
                 std::cout << "WARNING: "
                           << "Rotating by" << CTRL_DRIVE_ROTATE << std::endl;
@@ -145,6 +143,9 @@ void Robot::TeleopPeriodic()
                           << "" << std::endl;
             }
         }
+
+        else
+            Omni_Drive.Omni_Drive_Action(CTRL_DRIVE_LEFT_RIGHT, CTRL_DRIVE_FWD_BWD, CTRL_DRIVE_ROTATE, CTRL_DRIVE_SWITCH_MANUAL);
     }
 
     /************* PAYLOAD LIFT LOGIC ***************/
@@ -166,7 +167,7 @@ void Robot::TeleopPeriodic()
         {
             if (PRINT_CONTROL_VALUES)
                 std::cout << "WARNING: "
-                          << "(C) Lowest Position Targetted by Arm"
+                          << "(C) Lowest Position Targetted by Arm -- Cargo"
                           << "" << std::endl;
             else
                 Payload_Lift.Payload_Lift_Action(Lowest_Cargo_Position);
@@ -177,7 +178,7 @@ void Robot::TeleopPeriodic()
         {
             if (PRINT_CONTROL_VALUES)
                 std::cout << "WARNING: "
-                          << "(H) Lowest Position Targetted by Arm"
+                          << "(H) Lowest Position Targetted by Arm -- Hatch"
                           << "" << std::endl;
             else
                 Payload_Lift.Payload_Lift_Action(Lowest_Hatch_Position);
@@ -188,7 +189,7 @@ void Robot::TeleopPeriodic()
         {
             if (PRINT_CONTROL_VALUES)
                 std::cout << "WARNING: "
-                          << "(C) Middle Position Targetted by Arm"
+                          << "(C) Middle Position Targetted by Arm -- Cargo"
                           << "" << std::endl;
             else
                 Payload_Lift.Payload_Lift_Action(Middle_Cargo_Position);
@@ -199,7 +200,7 @@ void Robot::TeleopPeriodic()
         {
             if (PRINT_CONTROL_VALUES)
                 std::cout << "WARNING: "
-                          << "(H) Middle Position Targetted by Arm"
+                          << "(H) Middle Position Targetted by Arm -- Hatch"
                           << "" << std::endl;
             else
                 Payload_Lift.Payload_Lift_Action(Middle_Hatch_Position);
@@ -210,7 +211,7 @@ void Robot::TeleopPeriodic()
         {
             if (PRINT_CONTROL_VALUES)
                 std::cout << "WARNING: "
-                          << "(C) Highest Position Targetted by Arm"
+                          << "(C) Highest Position Targetted by Arm -- Cargo"
                           << "" << std::endl;
             else
                 Payload_Lift.Payload_Lift_Action(Highest_Cargo_Position);
@@ -221,7 +222,7 @@ void Robot::TeleopPeriodic()
         {
             if (PRINT_CONTROL_VALUES)
                 std::cout << "WARNING: "
-                          << "(H) Highest Position Targetted by Arm"
+                          << "(H) Highest Position Targetted by Arm -- Hatch"
                           << "" << std::endl;
             else
                 Payload_Lift.Payload_Lift_Action(Highest_Hatch_Position);
@@ -381,6 +382,14 @@ void Robot::TeleopPeriodic()
 
 void Robot::RobotInit()
 {
+    if (ENABLE_OMNI_DRIVE)
+        Omni_Drive.Configure_Omni_Drive();
+
+    if (ENABLE_PAYLOAD_LIFT)
+        Payload_Lift.Configure_Payload_Lift();
+
+    if (ENABLE_END_EFFECTOR)
+        End_Effector.Configure_End_Effector();
 }
 
 /*************************************************************************************************/

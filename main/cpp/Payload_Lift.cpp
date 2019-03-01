@@ -16,15 +16,18 @@
 /*************************************************************************************************/
 /**** !!!!!!! TUNING VARIABLES !!!!!!!  ****/
 
+// Manual Payload Lift Control -- Position Increment
+#define PAYLOAD_LIFT_MANUAL_INCREMENT (0.1)
+
 // TalonSRX Configuration -- ENABLE
 #define PAYLOAD_LIFT_WRITE_CONFIGURATION (true) // enabling bit to set configuration so we don't do it every time
 
 // TalonSRX Configuration -- SET Values
-#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.001) // DOWN
-#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.5)  // UP
-#define PAYLOAD_LIFT_PROPORTIONAL_CTRL (1.0)
-#define PAYLOAD_LIFT_DERIVATIVE_CTRL (0.1)
-#define PAYLOAD_LIFT_FEED_FWD_CTRL (0)
+#define PAYLOAD_LIFT_PEAK_OUTPUT_FWD (0.0)   // DOWN
+#define PAYLOAD_LIFT_PEAK_OUTPUT_REV (-0.35) // UP
+#define PAYLOAD_LIFT_PROPORTIONAL_CTRL (0.25)
+#define PAYLOAD_LIFT_DERIVATIVE_CTRL (0.025)
+#define PAYLOAD_LIFT_FEED_FWD_CTRL (0.0)
 #define PAYLOAD_LIFT_RAMP_TIME (0) // Seconds to get from neutral to full speed (peak output)
 #define PAYLOAD_LIFT_SLOT_IDX (0)  // Which motor control profile to save the configuration to, 0 and 1 available
 
@@ -103,20 +106,20 @@ void Excelsior_Payload_Lift::Payload_Lift_Manual(double speed)
     // Manual lifting
     if (speed > 0 && targetPayloadHeight < Maximum_Height_Position)
     {
-        targetPositionActual += 0.01;
-        Payload_Lift_Leader.Set(ControlMode::Position, targetPositionActual * PAYLOAD_LIFT_POSITION_SCALAR);
+        targetPositionActual += (PAYLOAD_LIFT_MANUAL_INCREMENT * speed);
+        Payload_Lift_Leader.Set(ControlMode::Position, (int)-targetPositionActual * PAYLOAD_LIFT_POSITION_SCALAR);
     }
 
     else if (speed < 0 && targetPayloadHeight > 0)
     {
-        targetPositionActual -= 0.01;
-        Payload_Lift_Leader.Set(ControlMode::Position, targetPositionActual * PAYLOAD_LIFT_POSITION_SCALAR);
+        targetPositionActual += (PAYLOAD_LIFT_MANUAL_INCREMENT * speed);
+        Payload_Lift_Leader.Set(ControlMode::Position, (int)-targetPositionActual * PAYLOAD_LIFT_POSITION_SCALAR);
     }
 
-    if(targetPositionActual > Lift_Position[(Payload_Lift_Position)targetPayloadHeight] && targetPayloadHeight < (int)Lift_Position[Maximum_Height_Position])
+    if ((targetPositionActual > Lift_Position[(Payload_Lift_Position)targetPayloadHeight]) && (targetPayloadHeight < Maximum_Height_Position))
         targetPayloadHeight++;
 
-    if(targetPositionActual < Lift_Position[(Payload_Lift_Position)targetPayloadHeight] && targetPayloadHeight > 0)
+    if ((targetPositionActual < Lift_Position[(Payload_Lift_Position)targetPayloadHeight]) && (targetPayloadHeight > 0))
         targetPayloadHeight--;
 }
 
