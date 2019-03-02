@@ -48,11 +48,11 @@
 std::map<Payload_Lift_Position, int> Lift_Position{
     {Ground_Position, 0},
     {Travel_Position, 2},
-    {Lowest_Hatch_Position, 8},
+    {Lowest_Hatch_Position, 6},
     {Lowest_Cargo_Position, 16},
-    {Middle_Hatch_Position, 17},
+    {Middle_Hatch_Position, 20},
     {Middle_Cargo_Position, 25},
-    {Highest_Hatch_Position, 28},
+    {Highest_Hatch_Position, 30},
     {Highest_Cargo_Position, 38},
     {Maximum_Height_Position, 40}};
 
@@ -126,15 +126,20 @@ void Excelsior_Payload_Lift::Payload_Lift_Manual(double speed)
 
 void Excelsior_Payload_Lift::Payload_Lift_Step(bool stepUp)
 {
-    // Make sure we don't exceed maximum height
-    if (stepUp && (targetPayloadHeight < Maximum_Height_Position))
-        targetPayloadHeight++;
+    // Only allow lower positions to STEP
+    if (targetPayloadHeight <= (int)Lowest_Hatch_Position)
+    {
+        // Make sure we don't exceed maximum height
+        if (stepUp && (targetPayloadHeight < Maximum_Height_Position))
+            targetPayloadHeight++;
 
-    // Make sure we don't exceed minimum height
-    else if (!stepUp && (targetPayloadHeight > Ground_Position))
-        targetPayloadHeight--;
+        // Make sure we don't exceed minimum height
+        else if (!stepUp && (targetPayloadHeight > Ground_Position))
+            targetPayloadHeight--;
 
-    Payload_Lift_Action((Payload_Lift_Position)targetPayloadHeight);
+        Payload_Lift_Leader.Set(ControlMode::Position, -Lift_Position[(Payload_Lift_Position)targetPayloadHeight] * PAYLOAD_LIFT_POSITION_SCALAR);
+        targetPositionActual = Lift_Position[(Payload_Lift_Position)targetPayloadHeight];
+    }
 }
 
 void Excelsior_Payload_Lift::Zero_Encoder_Position()

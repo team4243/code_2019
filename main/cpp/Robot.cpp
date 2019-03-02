@@ -3,7 +3,8 @@
 
 #include "Robot.h"
 #include "frc/WPILib.h"
-
+//#include "frc/CameraServer.h"
+//#include "C:\FRC_2019\Workspace_2019\2019_Excelsior_Code\Robot_2019\build\tmp\expandedArchives\cameraserver-cpp-2019.3.1-headers.zip_992d6c67f4984f018ec363e9353431cb\CameraServer.h"
 #include "Excelsior_Classes.h"
 #include <iostream>
 
@@ -56,9 +57,11 @@
 #define CTRL_LIFT_POSITION_MID_HATCH (Driver_Two.GetRawButton(BUTTON_CIRCLE) && Driver_Two.GetRawButton(BUTTON_R1))
 #define CTRL_LIFT_POSITION_HIGH_HATCH (Driver_Two.GetRawButton(BUTTON_TRIANGLE) && Driver_Two.GetRawButton(BUTTON_R1))
 
+#define CTRL_LIFT_POSITION_TRAVEL (Driver_Two.GetRawButton(BUTTON_SQARE))
+
 // Lift logic -- Position Adjustment
-#define CTRL_LIFT_POSITION_STEP_UP (false)   //(Driver_Two.GetPOV() == 0)
-#define CTRL_LIFT_POSITION_STEP_DOWN (false) // (Driver_Two.GetPOV() == 180)
+#define CTRL_LIFT_POSITION_STEP_UP (false)//(Driver_Two.GetPOV() == 0)
+#define CTRL_LIFT_POSITION_STEP_DOWN (false)//(Driver_Two.GetPOV() == 180)
 
 // Lift logic -- Manual
 #define CTRL_LIFT_UP_DOWN (-Driver_Two.GetY())
@@ -97,10 +100,13 @@
 Excelsior_Omni_Drive Omni_Drive;
 Excelsior_Payload_Lift Payload_Lift;
 Excelsior_End_Effector End_Effector;
-Best club epnguin emems 1302 4
+
 // Joystick Controllers, in this case we use Gamepad's instead of traditional joysticks
 frc::Joystick Driver_One{DRIVER_ONE_CHANNEL};
 frc::Joystick Driver_Two{DRIVER_TWO_CHANNEL};
+
+// Camera
+//frc::CameraServer cameraServer{}
 
 // Operator must press and release button for Payload Lift position changes
 bool pressedLastFrame_autoLift = false;
@@ -402,6 +408,9 @@ void Robot::RobotInit()
 
     if (ENABLE_END_EFFECTOR)
         End_Effector.Configure_End_Effector();
+
+    // Camera
+//    cameraServer.GetInstance().StartAutomaticCapture();
 }
 
 /*************************************************************************************************/
