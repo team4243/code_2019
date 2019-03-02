@@ -48,11 +48,11 @@
 std::map<Payload_Lift_Position, int> Lift_Position{
     {Ground_Position, 0},
     {Travel_Position, 2},
-    {Lowest_Hatch_Position, 8},
+    {Lowest_Hatch_Position, 9},
     {Lowest_Cargo_Position, 16},
-    {Middle_Hatch_Position, 17},
+    {Middle_Hatch_Position, 21},
     {Middle_Cargo_Position, 25},
-    {Highest_Hatch_Position, 28},
+    {Highest_Hatch_Position, 30},
     {Highest_Cargo_Position, 38},
     {Maximum_Height_Position, 40}};
 

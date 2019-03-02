@@ -3,7 +3,8 @@
 
 #include "Robot.h"
 #include "frc/WPILib.h"
-
+//#include "CameraServer.h"  // #warning "CameraServer.h is deprecated; include cameraserver/CameraServer.h instead"
+#include "cameraserver/CameraServer.h"
 #include "Excelsior_Classes.h"
 #include <iostream>
 
@@ -97,7 +98,7 @@
 Excelsior_Omni_Drive Omni_Drive;
 Excelsior_Payload_Lift Payload_Lift;
 Excelsior_End_Effector End_Effector;
-Best club epnguin emems 1302 4
+
 // Joystick Controllers, in this case we use Gamepad's instead of traditional joysticks
 frc::Joystick Driver_One{DRIVER_ONE_CHANNEL};
 frc::Joystick Driver_Two{DRIVER_TWO_CHANNEL};
@@ -110,6 +111,18 @@ bool pressedLastFrame_manualLift = false;
 
 // Operator must release manual roller action button to stop motion after press-n-hold action
 bool pressedLastFrame_cargoRollers = false;
+
+/*** Tinkering with CameraClass ***/
+///frc::CameraServer cameraServer{};  
+  //Note: The CameraServer() constructor is private. 
+  //  Instead, use something like 
+    /**
+   * Start automatically capturing images to send to the dashboard.
+   *
+   * @param name The name to give the camera
+   * @param dev  The device number of the camera interface
+   */
+    //cs::UsbCamera StartAutomaticCapture(const wpi::Twine& name, int dev);
 
 /*************************************************************************************************/
 /**** Teleop Periodic ****/
@@ -385,6 +398,9 @@ void Robot::TeleopPeriodic()
 
 void Robot::RobotInit()
 {
+    //cs::UsbCamera StartAutomaticCapture(const wpi::Twine& name, int dev);
+    cs::UsbCamera StartAutomaticCapture("RoboCamera", 0);
+
     if (ENABLE_OMNI_DRIVE)
         Omni_Drive.Configure_Omni_Drive();
 
@@ -414,7 +430,7 @@ void Robot::AutonomousPeriodic()
 {
     TeleopPeriodic();
 }
-void Robot::TeleopInit() {}
+ void Robot::TeleopInit() {}
 
 /*************************************************************************************************/
 /**** Start Robot -- Main() ****/
